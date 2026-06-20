@@ -102,37 +102,35 @@ async function fillPrompt(text: string): Promise<void> {
 async function uploadAttachment(filePath: string): Promise<void> {
   const absPath = path.resolve(filePath);
   if (!fs.existsSync(absPath)) throw new Error(`附件不存在: ${absPath}`);
-
   log(`上传附件: ${absPath}`);
 
-  // 策略1：upload 命令（触发 filechooser）
-  try {
-    c.upload(absPath);
-    log("upload 成功");
-    await c.sleep(3000);
-    return;
-  } catch {
-    // 策略2：找上传/附件按钮 → drop
-  }
-
+  // 策略1：先点击上传按钮触发文件选择框，再用 upload 提供文件
   const snap = c.snapshot();
-  const ref = c.findByKeywords(snap, KW.upload);
-  if (ref) {
-    c.drop(ref, absPath);
-    log(`drop ${ref} 成功`);
-    await c.sleep(3000);
-    return;
+  const uploadRef = c.findByKeywords(snap, KW.upload);
+  if (uploadRef) {
+    c.click(uploadRef);
+    await c.sleep(1000);
+    try {
+      c.upload(absPath);
+      log("通过点击上传按钮 + upload 成功");
+      await c.sleep(2000);
+      return;
+    } catch {
+      // upload 失败，继续尝试 drop
+    }
   }
 
-  // 策略3：点击 + 按钮触发 filechooser
-  const plusRef = c.findByKeywords(snap, ["+", "plus", "add", "more"]);
-  if (plusRef) {
-    c.click(plusRef);
-    await c.sleep(1000);
-    c.upload(absPath);
-    log("通过 + 按钮上传成功");
-    await c.sleep(3000);
-    return;
+  // 策略2：直接 drop 到输入框
+  const inputRef = c.findByKeywords(snap, KW.input);
+  if (inputRef) {
+    try {
+      c.drop(inputRef, absPath);
+      log(`drop 到输入框 ${inputRef} 成功`);
+      await c.sleep(2000);
+      return;
+    } catch {
+      // drop 失败
+    }
   }
 
   throw new Error("未找到上传入口");
