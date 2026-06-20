@@ -190,6 +190,7 @@ export const plugin: SitePlugin = {
   },
 
   async run(prompt: string, attachment?: string): Promise<RunResult> {
+    log(`run() 被调用, prompt长度=${prompt.length}, attachment=${attachment || '无'}`);
     const startTime = Date.now();
     const result: RunResult = {
       prompt,
@@ -268,6 +269,7 @@ async function main() {
   }
 
   c.setSession("doubao");
+  console.log("[doubao] 解析完成: prompt=", JSON.stringify(prompt), "filePath=", filePath);
   if (!process.env.SKIP_ATTACH) {
     console.log("[doubao] 正在连接 Chrome (playwright-cli attach)...");
     c.attach();
