@@ -277,16 +277,17 @@ export function upload(filePath: string) {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // 从后往前找无文本、有图标(svg/img)的按钮
+    // 从后往前找上传按钮：无文字有图标，或包含 Upload/上传 文字
     const allBtns = page.locator('button');
     const btnCount = await allBtns.count();
     for (let i = btnCount - 1; i >= Math.max(0, btnCount - 30); i--) {
       const btn = allBtns.nth(i);
       if (!(await btn.isVisible().catch(() => false))) continue;
       const text = await btn.innerText().catch(() => '');
-      if (text.trim().length > 0) continue;
-      const iconCount = await btn.locator('img, svg').count();
-      if (iconCount === 0) continue;
+      const hasIcon = await btn.locator('img, svg').count();
+      // 匹配：无文字有图标 OR 文字包含上传/Upload
+      const isUploadBtn = (text.trim().length === 0 && hasIcon > 0) || /上传|Upload/i.test(text);
+      if (!isUploadBtn) continue;
       await btn.click();
       await page.waitForTimeout(800);
       break;
