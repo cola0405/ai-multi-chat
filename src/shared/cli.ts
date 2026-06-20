@@ -317,7 +317,7 @@ export function upload(filePath: string) {
         }
       }
     }
-    const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20/ }).first();
+    const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20|\\u672c\\u5730\\u6587\\u4ef6/ }).first();
     if (await menuItem.isVisible().catch(() => false)) { await menuItem.click(); await page.waitForTimeout(1000); }
     return 'chooser opened';
   }`;
