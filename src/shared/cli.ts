@@ -270,26 +270,55 @@ export function upload(filePath: string) {
   let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
 
   if (inputCount === 0) {
-    const btns = page.locator('button');
-    const count = await btns.count();
-    for (let i = count - 1; i >= 0; i--) {
-      const text = await btns.nth(i).innerText().catch(() => '');
-      const hasImg = await btns.nth(i).locator('img').count();
-      if (hasImg > 0 && text.trim() === '') {
-        await btns.nth(i).click();
-        await page.waitForTimeout(500);
+    // 点击输入框旁边的附件按钮（通常是最后一个无文本的按钮）
+    const allBtns = page.locator('button');
+    const btnCount = await allBtns.count();
+    
+    // 从后往前找，靠近输入框的按钮更可能是附件按钮
+    for (let i = btnCount - 1; i >= Math.max(0, btnCount - 20); i--) {
+      const btn = allBtns.nth(i);
+      const text = await btn.innerText().catch(() => '');
+      const isVisible = await btn.isVisible().catch(() => false);
+      if (!isVisible) continue;
+      if (text.trim().length > 0) continue;
+      const imgCount = await btn.locator('img').count();
+      if (imgCount === 0) continue;
+      
+      // 找到无文本、有图标的可见按钮，点击它
+      await btn.click();
+      await page.waitForTimeout(800);
+      break;
+    }
+
+    // 等待菜单出现，点击"上传文件或图片"
+    await page.waitForTimeout(500);
+    const menuItems = page.getByRole('menuitem');
+    const menuCount = await menuItems.count();
+    for (let i = 0; i < menuCount; i++) {
+      const text = await menuItems.nth(i).innerText().catch(() => '');
+      if (text.includes('\\u4e0a\\u4f20') || text.includes('上传')) {
+        await menuItems.nth(i).click();
+        await page.waitForTimeout(1000);
         break;
       }
     }
 
-    const uploadItem = page.getByRole('menuitem').filter({ hasText: /\\u4e0a\\u4f20/ });
-    if (await uploadItem.count() > 0) {
-      await uploadItem.click();
-      await page.waitForTimeout(1000);
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(300);
-    }
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
   }
+
+  if (inputCount === 0) {
+    // 最后尝试：直接找到所有 input[type=file]，包括隐藏的
+    inputCount = await page.evaluate(() => {
+      const inputs = document.querySelectorAll('input[type=file]');
+      inputs.forEach(inp => { inp.style.display = 'block'; inp.style.visibility = 'visible'; });
+      return inputs.length;
+    });
+  }
+
+  if (inputCount === 0) throw new Error('No file input found after all attempts');
 
   const result = await page.evaluate(() => {
     const input = document.querySelector('input[type=file]');
