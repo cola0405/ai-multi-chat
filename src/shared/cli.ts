@@ -276,52 +276,71 @@ export function upload(filePath: string) {
 
   // Step 1: 打开文件选择框（仅在输入框不存在时）
   const step1 = `async page => {
+    const debug = [];
     let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+    debug.push('input=' + inputCount);
     if (inputCount > 0) return 'input exists';
 
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
+    // 1. getByRole
     const uploadBtn = page.getByRole('button', { name: /Upload|\\u4e0a\\u4f20/i }).first();
-    if (await uploadBtn.isVisible().catch(() => false)) {
+    const roleVisible = await uploadBtn.isVisible().catch(() => false);
+    debug.push('getByRole=' + roleVisible);
+    if (roleVisible) {
       await uploadBtn.click();
       await page.waitForTimeout(1000);
     } else {
-      // 兜底：在输入框附近找无文字有图标的可点击元素
+      // 2. 按位置找输入框附近的可点击小图标（按钮/图片）
       const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
-      const container = inputArea.locator('xpath=ancestor::div[5]');
-      
-      // 尝试找 button 里的图标
-      const nearbyBtns = container.locator('button, [role="button"]');
-      const nearbyCount = await nearbyBtns.count();
-      let found = false;
-      for (let i = nearbyCount - 1; i >= 0; i--) {
-        const btn = nearbyBtns.nth(i);
-        if (!(await btn.isVisible().catch(() => false))) continue;
-        const text = await btn.innerText().catch(() => '');
-        const hasIcon = await btn.locator('img, svg').count();
-        if (text.trim().length === 0 && hasIcon > 0) { await btn.click(); await page.waitForTimeout(800); found = true; break; }
-      }
-      
-      // 如果没找到，尝试找 svg[role=img] 或 img[cursor=pointer]（Kimi/Yuanbao）
-      if (!found) {
-        const svgs = container.locator('svg[role="img"], img');
-        const svgCount = await svgs.count();
-        for (let i = 0; i < Math.min(svgCount, 10); i++) {
-          const svg = svgs.nth(i);
-          if (!(await svg.isVisible().catch(() => false))) continue;
-          const box = await svg.boundingBox().catch(() => null);
-          if (!box || box.width > 50) continue; // 跳过大图（非按钮）
-          await svg.click();
-          await page.waitForTimeout(500);
-          const count = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-          if (count > 0) { found = true; break; }
+      const areaVisible = await inputArea.isVisible().catch(() => false);
+      debug.push('inputArea=' + areaVisible);
+      if (areaVisible) {
+        const inputBox = await inputArea.boundingBox();
+        if (inputBox) {
+          // 找页面上所有可见的小元素（在输入框附近，宽度<50px）
+          const allClickables = page.locator('button, [role="button"], svg, img:visible');
+          const totalCount = await allClickables.count();
+          let found = false;
+          for (let i = 0; i < Math.min(totalCount, 100); i++) {
+            const el = allClickables.nth(i);
+            const box = await el.boundingBox().catch(() => null);
+            if (!box) continue;
+            // 必须在输入框附近（Y 差 < 100px，X 在输入框右侧或附近）
+            if (Math.abs(box.y - inputBox.y) > 100) continue;
+            if (box.width > 50 || box.width < 5) continue;
+            // 排除有文字的按钮
+            const text = await el.innerText().catch(() => '');
+            if (text.trim().length > 0) continue;
+            debug.push('clickEl=' + i + ' w=' + Math.round(box.width) + ' x=' + Math.round(box.x));
+            // 用 JS dispatchEvent 代替 Playwright click（SVG 元素兼容性更好）
+            await page.evaluate(({x, y}) => {
+              const el = document.elementFromPoint(x, y);
+              if (el) el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, clientX: x, clientY: y}));
+            }, {x: box.x + box.width / 2, y: box.y + box.height / 2});
+            await page.waitForTimeout(500);
+            const fc = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+            if (fc > 0) { found = true; break; }
+          }
+          if (!found) debug.push('noNearbyIcon');
         }
       }
     }
+
+    // 3. 点击菜单项
     const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20|\\u672c\\u5730\\u6587\\u4ef6|\\u4e0a\\u4f20\\u6587\\u6863/ }).first();
-    if (await menuItem.isVisible().catch(() => false)) { await menuItem.click(); await page.waitForTimeout(1000); }
-    return 'chooser opened';
+    const menuVisible = await menuItem.isVisible().catch(() => false);
+    debug.push('menu=' + menuVisible);
+    if (menuVisible) {
+      await menuItem.click();
+      await page.waitForTimeout(1000);
+    }
+
+    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+    debug.push('after=' + inputCount);
+    if (inputCount === 0) throw new Error('No file input. ' + debug.join(' | '));
+    return debug.join(' | ');
   }`;
 
   // Step 3: 设置文件
