@@ -325,13 +325,25 @@ export function upload(filePath: string) {
   // Step 3: 设置文件
   const step3 = `async page => {
     const result = await page.evaluate(() => {
-      const input = document.querySelector('input[type=file]');
-      if (!input) return 'no input';
+      const inputs = document.querySelectorAll('input[type=file]');
+      if (inputs.length === 0) return 'no input';
       const b64 = '${base64}';
       const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
       const file = new File([bytes], '${name}', { type: '${mime}' });
       const dt = new DataTransfer();
       dt.items.add(file);
+
+      // 选择最合适的 input：优先 accept=""（接受所有类型），其次匹配 MIME
+      let input = null;
+      for (const inp of inputs) {
+        if (!inp.accept || inp.accept === '') { input = inp; break; }
+      }
+      if (!input) {
+        for (const inp of inputs) {
+          if (inp.accept.includes('${ext.replace('.', '')}') || inp.accept.includes('${mime}')) { input = inp; break; }
+        }
+      }
+      if (!input) input = inputs[inputs.length - 1];
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
       if (setter && setter.set) setter.set.call(input, dt.files);
       else input.files = dt.files;
