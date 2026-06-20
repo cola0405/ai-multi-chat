@@ -44,15 +44,10 @@ const KW = {
     "cancel",
   ],
   upload: [
-    "上传",
-    "upload",
-    "attach",
+    "添加附件",
     "附件",
-    "file",
-    "文件",
-    "image",
-    "图片",
-    "+",
+    "上传文档",
+    "上传图片",
   ],
   newChat: [
     "新对话",
