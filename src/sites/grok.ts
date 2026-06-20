@@ -89,12 +89,11 @@ async function fillPrompt(text: string): Promise<void> {
 
   if (ref) {
     log(`找到输入框: ${ref}`);
-    c.fill(ref, text);
+    c.click(ref);
+    await c.sleep(300);
+    c.typeText(text);
   } else {
-    log("未找到输入框 ref，尝试点击后键入");
-    const clickRef = c.findByKeywords(snap, ["prompt", "ask", "enter", "message"]);
-    if (clickRef) c.click(clickRef);
-    await c.sleep(500);
+    log("未找到输入框 ref，直接键入");
     c.typeText(text);
   }
 
@@ -318,7 +317,7 @@ Grok 自动化
     }
   }
 
-  c.setSession("grok");
+  c.setSession(process.env.PW_SESSION || "grok");
   if (!process.env.SKIP_ATTACH) {
     console.log("[grok] 正在连接 Chrome (playwright-cli attach)...");
     c.attach();

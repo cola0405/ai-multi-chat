@@ -245,7 +245,7 @@ async function main() {
     }
   }
 
-  c.setSession("doubao");
+  c.setSession(process.env.PW_SESSION || "doubao");
   if (!process.env.SKIP_ATTACH) {
     console.log("[doubao] 正在连接 Chrome (playwright-cli attach)...");
     c.attach();

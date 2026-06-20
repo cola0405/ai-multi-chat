@@ -85,13 +85,11 @@ async function fillPrompt(text: string): Promise<void> {
 
   if (ref) {
     log(`找到输入框: ${ref}`);
-    c.fill(ref, text);
+    c.click(ref);
+    await c.sleep(300);
+    c.typeText(text);
   } else {
-    log("未找到输入框 ref，尝试点击后键入");
-    // Gemini 的输入框有时需要点击激活
-    const clickRef = c.findByKeywords(snap, ["prompt", "ask", "enter"]);
-    if (clickRef) c.click(clickRef);
-    await c.sleep(500);
+    log("未找到输入框 ref，直接键入");
     c.typeText(text);
   }
 
@@ -326,7 +324,7 @@ Google Gemini 自动化
     }
   }
 
-  c.setSession("gemini");
+  c.setSession(process.env.PW_SESSION || "gemini");
   if (!process.env.SKIP_ATTACH) {
     console.log("[gemini] 正在连接 Chrome (playwright-cli attach)...");
     c.attach();
