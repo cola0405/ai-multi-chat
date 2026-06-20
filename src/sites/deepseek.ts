@@ -247,7 +247,7 @@ export const plugin: SitePlugin = {
       if (attachment) await uploadAttachment(attachment);
       await fillPrompt(prompt);
       await clickSend();
-      result.response = await waitForResponse();
+      log("已发送，不等待回复");
       result.success = true;
     } catch (err) {
       result.error = err instanceof Error ? err.message : String(err);
