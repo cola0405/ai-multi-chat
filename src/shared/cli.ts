@@ -294,7 +294,7 @@ export function upload(filePath: string) {
 
     // 点击"上传"菜单项（用文本匹配，不依赖 role）
     await page.waitForTimeout(500);
-    const uploadOption = page.locator('text=/上传/').first();
+    const uploadOption = page.locator('text=/上传|Upload files/').first();
     if (await uploadOption.isVisible().catch(() => false)) {
       await uploadOption.click();
       await page.waitForTimeout(1000);
@@ -307,7 +307,7 @@ export function upload(filePath: string) {
 
   if (inputCount === 0) throw new Error('No file input found');
 
-  // 通过 React onChange 设置文件
+  // 通过 native change 或 React onChange 设置文件
   const result = await page.evaluate(() => {
     const input = document.querySelector('input[type=file]');
     if (!input) return 'no input';
@@ -322,18 +322,19 @@ export function upload(filePath: string) {
     if (setter && setter.set) setter.set.call(input, dt.files);
     else input.files = dt.files;
 
-    // React onChange
+    // 优先 React onChange
     const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
     if (propsKey) {
       const props = input[propsKey];
       if (props && props.onChange) {
         props.onChange({ target: input, currentTarget: input });
-        return 'uploaded ' + file.name + ' (' + file.size + ' bytes)';
+        return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via React';
       }
     }
 
+    // 兜底 native change
     input.dispatchEvent(new Event('change', { bubbles: true }));
-    return 'uploaded ' + file.name + ' (native change)';
+    return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via native';
   });
   return result;
 }`;
