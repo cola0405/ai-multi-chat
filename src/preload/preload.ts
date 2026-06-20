@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 
 contextBridge.exposeInMainWorld('api', {
   // ─── 站点管理 ────────────────────────────────────
@@ -28,4 +28,5 @@ contextBridge.exposeInMainWorld('api', {
   // ─── 文件 ────────────────────────────────────────
   selectFiles: () => ipcRenderer.invoke('dialog:openFiles'),
   readTsFile: () => ipcRenderer.invoke('dialog:readTsFile'),
+  getPathForFile: (file: File) => webUtils.getPathForFile(file),
 });

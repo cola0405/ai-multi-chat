@@ -155,7 +155,7 @@ export default function App() {
     const files = Array.from(e.dataTransfer.files);
     if (files.length === 0) return;
     const newAttachments: Attachment[] = files.map((f) => ({
-      path: f.path,
+      path: window.api.getPathForFile(f),
       name: f.name,
       type: getFileType(f.name),
     }));
