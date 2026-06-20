@@ -262,7 +262,6 @@ export function press(key: string) {
 
 export function upload(filePath: string) {
   const absPath = path.resolve(filePath);
-  console.log("[cli] upload 开始:", absPath);
   const content = fs.readFileSync(absPath);
   const base64 = content.toString('base64');
   const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -275,21 +274,17 @@ export function upload(filePath: string) {
   };
   const mime = mimeMap[ext] || 'application/octet-stream';
 
-  const code = `async page => {
-  // 确保文件输入框存在
-  let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-
-  if (inputCount === 0) {
+  // Step 1: 打开文件选择框
+  const step1 = `async page => {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
-
-    // 优先用 getByRole 找上传按钮（兼容 shadow DOM）
-    let uploadBtn = page.getByRole('button', { name: /Upload|上传/i }).first();
+    let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+    if (inputCount > 0) return 'input exists';
+    const uploadBtn = page.getByRole('button', { name: /Upload|\\u4e0a\\u4f20/i }).first();
     if (await uploadBtn.isVisible().catch(() => false)) {
       await uploadBtn.click();
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(1000);
     } else {
-      // 兜底：从后往前找无文字有图标的按钮
       const allBtns = page.locator('button');
       const btnCount = await allBtns.count();
       for (let i = btnCount - 1; i >= Math.max(0, btnCount - 60); i--) {
@@ -297,73 +292,57 @@ export function upload(filePath: string) {
         if (!(await btn.isVisible().catch(() => false))) continue;
         const text = await btn.innerText().catch(() => '');
         const hasIcon = await btn.locator('img, svg').count();
-        if (text.trim().length === 0 && hasIcon > 0) {
-          await btn.click();
-          await page.waitForTimeout(800);
-          break;
+        if (text.trim().length === 0 && hasIcon > 0) { await btn.click(); await page.waitForTimeout(800); break; }
+      }
+    }
+    const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20/ }).first();
+    if (await menuItem.isVisible().catch(() => false)) { await menuItem.click(); await page.waitForTimeout(1000); }
+    return 'chooser opened';
+  }`;
+
+  // Step 3: 设置文件
+  const step3 = `async page => {
+    const result = await page.evaluate(() => {
+      const input = document.querySelector('input[type=file]');
+      if (!input) return 'no input';
+      const b64 = '${base64}';
+      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      const file = new File([bytes], '${name}', { type: '${mime}' });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
+      if (setter && setter.set) setter.set.call(input, dt.files);
+      else input.files = dt.files;
+      const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
+      if (propsKey) {
+        const props = input[propsKey];
+        if (props && props.onChange) {
+          props.onChange({ target: input, currentTarget: input });
+          return 'uploaded ' + file.name + ' via React';
         }
       }
-    }
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return 'uploaded ' + file.name + ' via native';
+    });
+    return result;
+  }`;
 
-    // 点击"上传"菜单项
-    await page.waitForTimeout(500);
-    const uploadOption = page.locator('text=/上传|Upload files/').first();
-    if (await uploadOption.isVisible().catch(() => false)) {
-      await uploadOption.click();
-      await page.waitForTimeout(1000);
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
-    }
+  const codeFile1 = path.join(process.cwd(), '.playwright-cli', '.upload-step1.js');
+  const codeFile3 = path.join(process.cwd(), '.playwright-cli', '.upload-step3.js');
+  fs.mkdirSync(path.dirname(codeFile1), { recursive: true });
+  fs.writeFileSync(codeFile1, step1, 'utf-8');
+  fs.writeFileSync(codeFile3, step3, 'utf-8');
 
-    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-  }
-
-  if (inputCount === 0) throw new Error('No file input found');
-
-  // 通过 native change 或 React onChange 设置文件
-  const result = await page.evaluate(() => {
-    const input = document.querySelector('input[type=file]');
-    if (!input) return 'no input';
-
-    const b64 = '${base64}';
-    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    const file = new File([bytes], '${name}', { type: '${mime}' });
-    const dt = new DataTransfer();
-    dt.items.add(file);
-
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
-    if (setter && setter.set) setter.set.call(input, dt.files);
-    else input.files = dt.files;
-
-    // 优先 React onChange
-    const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
-    if (propsKey) {
-      const props = input[propsKey];
-      if (props && props.onChange) {
-        props.onChange({ target: input, currentTarget: input });
-        return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via React';
-      }
-    }
-
-    // 兜底 native change
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-    return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via native';
-  });
-  return result;
-}`;
-
-  const codeFile = path.join(process.cwd(), '.playwright-cli', '.upload-code.js');
-  fs.mkdirSync(path.dirname(codeFile), { recursive: true });
-  fs.writeFileSync(codeFile, code, 'utf-8');
-  console.log("[cli] upload run-code 文件:", codeFile);
   try {
-    const result = cli(`run-code --filename="${codeFile}"`);
-    console.log("[cli] upload run-code 结果:", result);
-  } catch (err) {
-    console.log("[cli] upload run-code 异常:", err instanceof Error ? err.message : String(err));
-    throw err;
+    // Step 1: 打开文件选择框
+    cli(`run-code --filename="${codeFile1}"`);
+    // Step 2: 用 upload 命令关闭选择框（报错但能关闭）
+    try { cli(`upload "${absPath}"`); } catch { /* 忽略 */ }
+    // Step 3: 设置文件
+    return cli(`run-code --filename="${codeFile3}"`);
   } finally {
-    try { fs.unlinkSync(codeFile); } catch { /* */ }
+    try { fs.unlinkSync(codeFile1); } catch { /* */ }
+    try { fs.unlinkSync(codeFile3); } catch { /* */ }
   }
 }
 
