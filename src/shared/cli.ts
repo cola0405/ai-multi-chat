@@ -274,12 +274,14 @@ export function upload(filePath: string) {
   };
   const mime = mimeMap[ext] || 'application/octet-stream';
 
-  // Step 1: 打开文件选择框
+  // Step 1: 打开文件选择框（仅在输入框不存在时）
   const step1 = `async page => {
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
     let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
     if (inputCount > 0) return 'input exists';
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+
     const uploadBtn = page.getByRole('button', { name: /Upload|\\u4e0a\\u4f20/i }).first();
     if (await uploadBtn.isVisible().catch(() => false)) {
       await uploadBtn.click();
@@ -334,10 +336,12 @@ export function upload(filePath: string) {
   fs.writeFileSync(codeFile3, step3, 'utf-8');
 
   try {
-    // Step 1: 打开文件选择框
-    cli(`run-code --filename="${codeFile1}"`);
-    // Step 2: 用 upload 命令关闭选择框（报错但能关闭）
-    try { cli(`upload "${absPath}"`); } catch { /* 忽略 */ }
+    // Step 1: 确保文件输入框存在
+    const step1Result = cli(`run-code --filename="${codeFile1}"`);
+    // Step 2: 如果打开了文件选择框，用 upload 命令关闭
+    if (step1Result.includes('chooser opened')) {
+      try { cli(`upload "${absPath}"`); } catch { /* 忽略 */ }
+    }
     // Step 3: 设置文件
     return cli(`run-code --filename="${codeFile3}"`);
   } finally {
