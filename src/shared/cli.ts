@@ -303,21 +303,23 @@ export function upload(filePath: string) {
         if (text.trim().length === 0 && hasIcon > 0) { await btn.click(); await page.waitForTimeout(800); found = true; break; }
       }
       
-      // 如果没找到，尝试找 svg[role=img]（Kimi 的上传按钮是 SVG）
+      // 如果没找到，尝试找 svg[role=img] 或 img[cursor=pointer]（Kimi/Yuanbao）
       if (!found) {
-        const svgs = container.locator('svg[role="img"]');
+        const svgs = container.locator('svg[role="img"], img');
         const svgCount = await svgs.count();
-        for (let i = 0; i < Math.min(svgCount, 5); i++) {
+        for (let i = 0; i < Math.min(svgCount, 10); i++) {
           const svg = svgs.nth(i);
           if (!(await svg.isVisible().catch(() => false))) continue;
+          const box = await svg.boundingBox().catch(() => null);
+          if (!box || box.width > 50) continue; // 跳过大图（非按钮）
           await svg.click();
           await page.waitForTimeout(500);
           const count = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-          if (count > 0) break;
+          if (count > 0) { found = true; break; }
         }
       }
     }
-    const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20|\\u672c\\u5730\\u6587\\u4ef6/ }).first();
+    const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20|\\u672c\\u5730\\u6587\\u4ef6|\\u4e0a\\u4f20\\u6587\\u6863/ }).first();
     if (await menuItem.isVisible().catch(() => false)) { await menuItem.click(); await page.waitForTimeout(1000); }
     return 'chooser opened';
   }`;
