@@ -289,23 +289,36 @@ export function upload(filePath: string) {
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
     }
-
-    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
   }
-
-  if (inputCount === 0) throw new Error('No file input found');
 
   const result = await page.evaluate(() => {
     const input = document.querySelector('input[type=file]');
     if (!input) return 'no input';
+
     const b64 = '${base64}';
     const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
     const file = new File([bytes], '${name}', { type: '${mime}' });
     const dt = new DataTransfer();
     dt.items.add(file);
-    input.files = dt.files;
+
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
+    if (setter && setter.set) {
+      setter.set.call(input, dt.files);
+    } else {
+      input.files = dt.files;
+    }
+
+    const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
+    if (propsKey) {
+      const props = input[propsKey];
+      if (props && props.onChange) {
+        props.onChange({ target: input, currentTarget: input });
+        return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via React';
+      }
+    }
+
     input.dispatchEvent(new Event('change', { bubbles: true }));
-    return 'uploaded ' + file.name + ' (' + file.size + ' bytes)';
+    return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via native';
   });
   return result;
 }`;
