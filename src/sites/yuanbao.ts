@@ -17,17 +17,14 @@ import type { SitePlugin, RunResult } from "../types.js";
 // ─── 元素匹配关键词 ──────────────────────────────────────
 const KW = {
   input: [
-    "textbox",
-    "textarea",
-    "contenteditable",
-    "输入",
-    "聊天",
-    "输入框",
-    "prompt",
-    "message",
-    "请输入",
+    "有问题，尽管问",
     "问点什么",
     "给元宝发消息",
+    "请输入",
+    "shift+enter换行",
+    "contenteditable",
+    "textbox",
+    "textarea",
   ],
   send: [
     "发送",
@@ -95,7 +92,7 @@ async function fillPrompt(text: string): Promise<void> {
     c.fill(ref, text);
   } else {
     log("未找到输入框 ref，尝试点击后键入");
-    const clickRef = c.findByKeywords(snap, ["输入", "聊天", "请输入", "问点什么"]);
+    const clickRef = c.findByKeywords(snap, ["有问题，尽管问", "问点什么", "shift+enter"]);
     if (clickRef) c.click(clickRef);
     await c.sleep(500);
     c.typeText(text);
