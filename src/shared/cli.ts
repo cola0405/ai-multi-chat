@@ -264,29 +264,71 @@ export function upload(filePath: string) {
   const mime = mimeMap[ext] || 'application/octet-stream';
 
   const code = `async page => {
-  const result = await page.evaluate(() => {
-    try {
-      const b64 = '${base64}';
-      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-      const file = new File([bytes], '${name}', { type: '${mime}' });
+  // 确保文件输入框存在
+  let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
 
-      const dt = new DataTransfer();
-      dt.items.add(file);
+  if (inputCount === 0) {
+    // 关闭可能存在的弹层
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
 
-      // 找到拖放目标区域
-      const textarea = document.querySelector('textarea, [contenteditable="true"]');
-      const dropZone = textarea ? textarea.closest('div') || textarea : document.body;
-
-      // 完整的拖放事件序列
-      const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
-      dropZone.dispatchEvent(new DragEvent('dragenter', opts));
-      dropZone.dispatchEvent(new DragEvent('dragover', opts));
-      dropZone.dispatchEvent(new DragEvent('drop', opts));
-
-      return 'dropped ' + file.name + ' (' + file.size + ' bytes)';
-    } catch (e) {
-      return 'error: ' + e.toString();
+    // 从后往前找无文本、有图标(svg/img)的按钮
+    const allBtns = page.locator('button');
+    const btnCount = await allBtns.count();
+    for (let i = btnCount - 1; i >= Math.max(0, btnCount - 30); i--) {
+      const btn = allBtns.nth(i);
+      if (!(await btn.isVisible().catch(() => false))) continue;
+      const text = await btn.innerText().catch(() => '');
+      if (text.trim().length > 0) continue;
+      const iconCount = await btn.locator('img, svg').count();
+      if (iconCount === 0) continue;
+      await btn.click();
+      await page.waitForTimeout(800);
+      break;
     }
+
+    // 点击"上传"菜单项（用文本匹配，不依赖 role）
+    await page.waitForTimeout(500);
+    const uploadOption = page.locator('text=/上传/').first();
+    if (await uploadOption.isVisible().catch(() => false)) {
+      await uploadOption.click();
+      await page.waitForTimeout(1000);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(500);
+    }
+
+    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+  }
+
+  if (inputCount === 0) throw new Error('No file input found');
+
+  // 通过 React onChange 设置文件
+  const result = await page.evaluate(() => {
+    const input = document.querySelector('input[type=file]');
+    if (!input) return 'no input';
+
+    const b64 = '${base64}';
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const file = new File([bytes], '${name}', { type: '${mime}' });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
+    if (setter && setter.set) setter.set.call(input, dt.files);
+    else input.files = dt.files;
+
+    // React onChange
+    const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
+    if (propsKey) {
+      const props = input[propsKey];
+      if (props && props.onChange) {
+        props.onChange({ target: input, currentTarget: input });
+        return 'uploaded ' + file.name + ' (' + file.size + ' bytes)';
+      }
+    }
+
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    return 'uploaded ' + file.name + ' (native change)';
   });
   return result;
 }`;
