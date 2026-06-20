@@ -250,11 +250,48 @@ export function press(key: string) {
 }
 
 export function upload(filePath: string) {
-  cli(`upload "${path.resolve(filePath)}"`);
+  const absPath = path.resolve(filePath);
+  const content = fs.readFileSync(absPath);
+  const base64 = content.toString('base64');
+  const name = path.basename(absPath).replace(/'/g, "\\'").replace(/"/g, '\\"');
+  const ext = path.extname(absPath).toLowerCase();
+  const mimeMap: Record<string, string> = {
+    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+    '.gif': 'image/gif', '.webp': 'image/webp', '.bmp': 'image/bmp',
+    '.svg': 'image/svg+xml', '.pdf': 'application/pdf',
+    '.txt': 'text/plain', '.csv': 'text/csv', '.json': 'application/json',
+  };
+  const mime = mimeMap[ext] || 'application/octet-stream';
+
+  const code = `async page => {
+  const result = await page.evaluate(() => {
+    const b64 = '${base64}';
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const file = new File([bytes], '${name}', { type: '${mime}' });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const input = document.querySelector("input[type=file]");
+    if (!input) return "no file input found";
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    return "uploaded " + file.name + " (" + file.size + " bytes)";
+  });
+  return result;
+}`;
+
+  const codeFile = path.join(process.cwd(), '.playwright-cli', '.upload-code.js');
+  fs.mkdirSync(path.dirname(codeFile), { recursive: true });
+  fs.writeFileSync(codeFile, code, 'utf-8');
+  try {
+    cli(`run-code --filename="${codeFile}"`);
+  } finally {
+    try { fs.unlinkSync(codeFile); } catch { /* */ }
+  }
 }
 
 export function drop(ref: string, filePath: string) {
-  cli(`drop ${ref} --path="${path.resolve(filePath)}"`);
+  // drop 命令不存在，改用 upload 方式
+  upload(filePath);
 }
 
 // ─── 提取文本 ──────────────────────────────────────────

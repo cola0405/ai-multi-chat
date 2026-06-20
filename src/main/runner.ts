@@ -22,9 +22,6 @@ export interface RunCallbacks {
  * 使用系统的 node + tsx CLI 来执行 .ts 文件。
  */
 export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildProcess {
-  console.log(`[runner] opts.filePath:`, opts.filePath);
-  console.log(`[runner] opts.prompt:`, opts.prompt);
-  console.log(`[runner] opts.session:`, opts.session);
   const projectRoot = opts.cwd || app.getAppPath();
   const isWindows = process.platform === 'win32';
 
@@ -51,7 +48,6 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
       const relativeFile = path.relative(projectRoot, opts.filePath);
       cmd += ` --file "${relativeFile}"`;
     }
-    console.log(`[runner] cmd: ${cmd}`);
     const child = spawn('cmd.exe', ['/c', cmd], {
       cwd: projectRoot,
       env: { ...process.env, PW_SESSION: opts.session },
