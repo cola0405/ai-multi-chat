@@ -251,6 +251,7 @@ export function press(key: string) {
 
 export function upload(filePath: string) {
   const absPath = path.resolve(filePath);
+  console.log("[cli] upload 被调用, absPath:", absPath);
   const content = fs.readFileSync(absPath);
   const base64 = content.toString('base64');
   const name = path.basename(absPath).replace(/'/g, "\\'").replace(/"/g, '\\"');

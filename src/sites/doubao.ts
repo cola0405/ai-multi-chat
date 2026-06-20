@@ -244,6 +244,8 @@ async function main() {
   }
 
   c.setSession("doubao");
+  console.log("[doubao] 全部参数:", JSON.stringify(process.argv));
+  console.log("[doubao] 解析结果: prompt=", JSON.stringify(prompt), "filePath=", filePath);
   if (!process.env.SKIP_ATTACH) {
     console.log("[doubao] 正在连接 Chrome (playwright-cli attach)...");
     c.attach();

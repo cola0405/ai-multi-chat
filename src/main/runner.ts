@@ -48,6 +48,8 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
       const relativeFile = path.relative(projectRoot, opts.filePath);
       cmd += ` --file "${relativeFile}"`;
     }
+    console.log("[runner] 完整命令:", cmd);
+    console.log("[runner] filePath:", opts.filePath);
     const child = spawn('cmd.exe', ['/c', cmd], {
       cwd: projectRoot,
       env: { ...process.env, PW_SESSION: opts.session },
