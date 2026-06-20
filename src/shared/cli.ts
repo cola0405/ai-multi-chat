@@ -126,7 +126,12 @@ export function cli(args: string, timeout = 60_000): string {
     const stderr = e.stderr?.toString().trim() || '';
     const stdout = e.stdout?.toString().trim() || '';
     const combined = stdout + '\n' + stderr;
-    // 如果输出有 Result，视为成功（run-code 结果可能在 stdout 或 stderr）
+    // 如果有 Error，视为失败
+    if (combined.includes('### Error')) {
+      const match = combined.match(/### Error\s*[\r\n]+(.+)/);
+      throw new Error(match ? match[1].trim() : stderr || stdout);
+    }
+    // 如果有 Result，视为成功（run-code 结果可能在 stdout 或 stderr）
     if (combined.includes('### Result')) {
       const match = combined.match(/### Result\s*[\r\n]+(.+)/);
       return match ? match[1].trim() : stdout || stderr;
@@ -257,6 +262,7 @@ export function press(key: string) {
 
 export function upload(filePath: string) {
   const absPath = path.resolve(filePath);
+  console.log("[cli] upload 开始:", absPath);
   const content = fs.readFileSync(absPath);
   const base64 = content.toString('base64');
   const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -274,27 +280,32 @@ export function upload(filePath: string) {
   let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
 
   if (inputCount === 0) {
-    // 关闭可能存在的弹层
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
 
-    // 从后往前找上传按钮：无文字有图标，或包含 Upload/上传 文字
-    const allBtns = page.locator('button');
-    const btnCount = await allBtns.count();
-    for (let i = btnCount - 1; i >= Math.max(0, btnCount - 30); i--) {
-      const btn = allBtns.nth(i);
-      if (!(await btn.isVisible().catch(() => false))) continue;
-      const text = await btn.innerText().catch(() => '');
-      const hasIcon = await btn.locator('img, svg').count();
-      // 匹配：无文字有图标 OR 文字包含上传/Upload
-      const isUploadBtn = (text.trim().length === 0 && hasIcon > 0) || /上传|Upload/i.test(text);
-      if (!isUploadBtn) continue;
-      await btn.click();
+    // 优先用 getByRole 找上传按钮（兼容 shadow DOM）
+    let uploadBtn = page.getByRole('button', { name: /Upload|上传/i }).first();
+    if (await uploadBtn.isVisible().catch(() => false)) {
+      await uploadBtn.click();
       await page.waitForTimeout(800);
-      break;
+    } else {
+      // 兜底：从后往前找无文字有图标的按钮
+      const allBtns = page.locator('button');
+      const btnCount = await allBtns.count();
+      for (let i = btnCount - 1; i >= Math.max(0, btnCount - 60); i--) {
+        const btn = allBtns.nth(i);
+        if (!(await btn.isVisible().catch(() => false))) continue;
+        const text = await btn.innerText().catch(() => '');
+        const hasIcon = await btn.locator('img, svg').count();
+        if (text.trim().length === 0 && hasIcon > 0) {
+          await btn.click();
+          await page.waitForTimeout(800);
+          break;
+        }
+      }
     }
 
-    // 点击"上传"菜单项（用文本匹配，不依赖 role）
+    // 点击"上传"菜单项
     await page.waitForTimeout(500);
     const uploadOption = page.locator('text=/上传|Upload files/').first();
     if (await uploadOption.isVisible().catch(() => false)) {
@@ -344,8 +355,13 @@ export function upload(filePath: string) {
   const codeFile = path.join(process.cwd(), '.playwright-cli', '.upload-code.js');
   fs.mkdirSync(path.dirname(codeFile), { recursive: true });
   fs.writeFileSync(codeFile, code, 'utf-8');
+  console.log("[cli] upload run-code 文件:", codeFile);
   try {
-    cli(`run-code --filename="${codeFile}"`);
+    const result = cli(`run-code --filename="${codeFile}"`);
+    console.log("[cli] upload run-code 结果:", result);
+  } catch (err) {
+    console.log("[cli] upload run-code 异常:", err instanceof Error ? err.message : String(err));
+    throw err;
   } finally {
     try { fs.unlinkSync(codeFile); } catch { /* */ }
   }
