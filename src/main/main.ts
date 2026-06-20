@@ -109,66 +109,73 @@ function setupIpcHandlers(): void {
     return { path: filePath, name: path.basename(filePath), content };
   });
 
-  // 运行站点脚本（并行执行：每个站点独立 session，同时启动）
+  // 运行站点脚本（顺序执行：一次只运行一个站点，避免扩展冲突）
   ipcMain.handle(
     'run',
-    (_e, payload: { sites: string[]; prompt: string; attachments: string[]; statusMsgId: string }) => {
+    async (_e, payload: { sites: string[]; prompt: string; attachments: string[]; statusMsgId: string }) => {
       const filePath = payload.attachments.length > 0 ? payload.attachments[0] : undefined;
       const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
-      console.log(`[run] 并行启动 ${payload.sites.length} 个站点...`);
+      console.log(`[run] 顺序启动 ${payload.sites.length} 个站点...`);
 
-      // 并行启动每个站点（每个站点独立 session，互不阻塞）
+      const emit = (data: Record<string, unknown>) => {
+        const eventData = { runId, statusMsgId: payload.statusMsgId, ...data };
+        console.log('[emit] 发送事件:', JSON.stringify(eventData));
+        mainWindow?.webContents.send('run:event', eventData);
+      };
+
+      // 顺序执行每个站点
       for (const siteName of payload.sites) {
         const scriptPath = getSiteScriptPath(siteName);
         let logOutput = '';
 
-        const emit = (data: Record<string, unknown>) => {
-          const eventData = { runId, statusMsgId: payload.statusMsgId, ...data };
-          console.log('[emit] 发送事件:', JSON.stringify(eventData));
-          mainWindow?.webContents.send('run:event', eventData);
-        };
+        emit({ site: siteName, status: 'sending', log: '' });
 
-        try {
-          const child = runSiteScript(
-            { scriptPath, session: siteName, prompt: payload.prompt, filePath },
-            {
-              onStdout: (data) => {
-                const trimmed = data.trim();
-                logOutput += trimmed + '\n';
-                console.log(`[${siteName}]`, trimmed);
-                emit({ site: siteName, status: 'sending', log: logOutput });
-              },
-              onStderr: (data) => {
-                const trimmed = data.trim();
-                logOutput += trimmed + '\n';
-                console.error(`[${siteName}]`, trimmed);
-                emit({ site: siteName, status: 'sending', log: logOutput });
-              },
-              onExit: (code) => {
-                emit({
-                  site: siteName,
-                  status: code === 0 || code === null ? 'sent' : 'error',
-                  error: code !== 0 && code !== null ? `进程退出码: ${code}` : undefined,
-                  log: logOutput,
-                });
-                activeProcesses.delete(`${runId}-${siteName}`);
-              },
-              onError: (err) => {
-                emit({ site: siteName, status: 'error', error: err.message, log: logOutput });
-                activeProcesses.delete(`${runId}-${siteName}`);
-              },
-            }
-          );
-          activeProcesses.set(`${runId}-${siteName}`, child);
-        } catch (err) {
-          emit({
-            site: siteName,
-            status: 'error',
-            error: err instanceof Error ? err.message : String(err),
-            log: logOutput,
-          });
-        }
+        await new Promise<void>((resolve) => {
+          try {
+            const child = runSiteScript(
+              { scriptPath, session: siteName, prompt: payload.prompt, filePath },
+              {
+                onStdout: (data) => {
+                  const trimmed = data.trim();
+                  logOutput += trimmed + '\n';
+                  console.log(`[${siteName}]`, trimmed);
+                  emit({ site: siteName, status: 'sending', log: logOutput });
+                },
+                onStderr: (data) => {
+                  const trimmed = data.trim();
+                  logOutput += trimmed + '\n';
+                  console.error(`[${siteName}]`, trimmed);
+                  emit({ site: siteName, status: 'sending', log: logOutput });
+                },
+                onExit: (code) => {
+                  emit({
+                    site: siteName,
+                    status: code === 0 || code === null ? 'sent' : 'error',
+                    error: code !== 0 && code !== null ? `进程退出码: ${code}` : undefined,
+                    log: logOutput,
+                  });
+                  activeProcesses.delete(`${runId}-${siteName}`);
+                  resolve();
+                },
+                onError: (err) => {
+                  emit({ site: siteName, status: 'error', error: err.message, log: logOutput });
+                  activeProcesses.delete(`${runId}-${siteName}`);
+                  resolve();
+                },
+              }
+            );
+            activeProcesses.set(`${runId}-${siteName}`, child);
+          } catch (err) {
+            emit({
+              site: siteName,
+              status: 'error',
+              error: err instanceof Error ? err.message : String(err),
+              log: logOutput,
+            });
+            resolve();
+          }
+        });
       }
 
       return runId;

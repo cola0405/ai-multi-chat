@@ -4,6 +4,57 @@
  */
 import { execSync, exec } from 'node:child_process';
 import * as path from 'node:path';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+
+// ─── 跨进程文件锁（序列化 attach --extension） ─────────
+const LOCK_FILE = path.join(os.tmpdir(), '.playwright-cli-attach.lock');
+
+function isAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function acquireLock(retries = 30, intervalMs = 500): void {
+  for (let i = 0; i < retries; i++) {
+    try {
+      // 清理过期锁（创建进程已退出）
+      if (fs.existsSync(LOCK_FILE)) {
+        const content = fs.readFileSync(LOCK_FILE, 'utf-8').trim();
+        const pid = parseInt(content, 10);
+        if (isNaN(pid) || !isAlive(pid)) {
+          fs.unlinkSync(LOCK_FILE);
+        }
+      }
+      // 独占创建（wx 模式：文件已存在则抛错）
+      const fd = fs.openSync(LOCK_FILE, 'wx');
+      fs.writeSync(fd, String(process.pid));
+      fs.closeSync(fd);
+      return; // 拿到锁
+    } catch {
+      // 锁被占用，等待后重试
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, intervalMs);
+    }
+  }
+  // 超时：强制清理后直接拿
+  try { fs.unlinkSync(LOCK_FILE); } catch { /* */ }
+  const fd = fs.openSync(LOCK_FILE, 'wx');
+  fs.writeSync(fd, String(process.pid));
+  fs.closeSync(fd);
+}
+
+function releaseLock(): void {
+  try {
+    const content = fs.readFileSync(LOCK_FILE, 'utf-8').trim();
+    if (parseInt(content, 10) === process.pid) {
+      fs.unlinkSync(LOCK_FILE);
+    }
+  } catch { /* */ }
+}
 
 // ─── 类型 ──────────────────────────────────────────────
 export interface SnapshotElement {
@@ -32,8 +83,10 @@ function ensureAttached() {
   if (_attachPromise) return;
   _attached = true;
   _attachPromise = new Promise<void>((resolve, reject) => {
+    acquireLock();
     const cmd = `playwright-cli attach --extension --session=${_session}`;
     exec(cmd, { encoding: 'utf-8', timeout: 60_000 }, (err, stdout, stderr) => {
+      releaseLock();
       if (err) {
         console.error('[cli] 连接浏览器失败:', stderr || err.message);
         reject(err);
@@ -88,19 +141,33 @@ export function open(url?: string) {
   } catch { /* 忽略 */ }
 
   const attachCmd = `playwright-cli attach --extension --session=${_session}`;
+
+  // 跨进程文件锁，防止多进程同时 attach 扩展
+  acquireLock();
   try {
-    execSync(attachCmd, { encoding: 'utf-8', timeout: 60_000, stdio: 'pipe' });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('already in use')) {
-      console.warn('[cli] 连接被占用，尝试强制清理后重试...');
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        execSync('playwright-cli kill-all', { encoding: 'utf-8', timeout: 10_000, stdio: 'pipe' });
-      } catch { /* 忽略 */ }
-      execSync(attachCmd, { encoding: 'utf-8', timeout: 60_000, stdio: 'pipe' });
-    } else {
-      throw err;
+        execSync(attachCmd, { encoding: 'utf-8', timeout: 60_000, stdio: 'pipe' });
+        lastErr = null;
+        break;
+      } catch (err) {
+        lastErr = err;
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes('already in use')) {
+          console.warn('[cli] 连接被占用，尝试强制清理后重试...');
+          try {
+            execSync('playwright-cli kill-all', { encoding: 'utf-8', timeout: 10_000, stdio: 'pipe' });
+          } catch { /* 忽略 */ }
+        } else if (attempt < 3) {
+          // 扩展正忙，等待后重试
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 2000);
+        }
+      }
     }
+    if (lastErr) throw lastErr;
+  } finally {
+    releaseLock();
   }
 
   // 标记已连接，防止后续 cli() 调用重复 attach
