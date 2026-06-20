@@ -345,7 +345,7 @@ Kimi 自动化
   }
 }
 
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}`) {
+if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, "/")}`) {
   main().catch((err) => {
     console.error("异常:", err);
     process.exit(1);
