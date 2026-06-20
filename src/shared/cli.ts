@@ -114,9 +114,9 @@ export function cli(args: string, timeout = 30_000): string {
   if (!args.startsWith('attach') && !args.startsWith('detach')) {
     ensureAttached();
   }
-  const cmd = `playwright-cli -s=${_session} ${args}`;
+  const fullCmd = `playwright-cli -s=${_session} ${args}`;
   try {
-    return execSync(cmd, {
+    return execSync(fullCmd, {
       encoding: 'utf-8',
       timeout,
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -125,7 +125,7 @@ export function cli(args: string, timeout = 30_000): string {
     const e = err as { stderr?: string; stdout?: string; message?: string };
     const stderr = e.stderr?.toString().trim() || '';
     const stdout = e.stdout?.toString().trim() || '';
-    throw new Error(`命令失败: ${cmd}\n${stderr || stdout || e.message}`);
+    throw new Error(`命令失败: ${fullCmd}\n${stderr || stdout || e.message}`);
   }
 }
 
@@ -234,7 +234,7 @@ export function findByKeywords(elements: SnapshotElement[], keywords: string[]):
 
 // ─── 交互 ──────────────────────────────────────────────
 export function fill(ref: string, text: string) {
-  cli(`fill ${ref} "${escapeStr(text)}"`);
+  cli(`fill ${ref} "${text}"`);
 }
 
 export function click(ref: string) {
@@ -242,7 +242,7 @@ export function click(ref: string) {
 }
 
 export function typeText(text: string) {
-  cli(`type "${escapeStr(text)}"`);
+  cli(`type "${text}"`);
 }
 
 export function press(key: string) {
@@ -280,5 +280,5 @@ export function sleep(ms: number): Promise<void> {
 }
 
 function escapeStr(text: string): string {
-  return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return text.replace(/\\/g, '\\\\');
 }
