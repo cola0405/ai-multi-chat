@@ -151,5 +151,38 @@ export class SiteConfigManager {
         console.warn(`[config] 共享文件不存在: ${src}`);
       }
     }
+
+    // 同步内置站点脚本到 userData
+    this.syncBuiltinScripts();
+  }
+
+  /**
+   * 将项目 src/sites/*.ts 同步到 userData/sites/，
+   * 保证所有内置脚本在应用中可用，也方便开发时在项目目录编辑。
+   */
+  private syncBuiltinScripts(): void {
+    let builtinDir: string;
+    if (app.isPackaged) {
+      builtinDir = path.join(process.resourcesPath || '', 'sites');
+    } else {
+      builtinDir = path.join(app.getAppPath(), 'src', 'sites');
+    }
+
+    if (!fs.existsSync(builtinDir)) return;
+
+    const destDir = this.sitesDir;
+    const files = fs.readdirSync(builtinDir).filter((f) => f.endsWith('.ts'));
+
+    for (const file of files) {
+      const src = path.join(builtinDir, file);
+      const dest = path.join(destDir, file);
+      try {
+        fs.copyFileSync(src, dest);
+      } catch (err) {
+        console.warn(`[config] 同步脚本失败: ${file}`, err);
+      }
+    }
+
+    console.log(`[config] 已同步 ${files.length} 个内置脚本到 ${destDir}`);
   }
 }

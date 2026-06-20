@@ -50,7 +50,7 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
     }
     const child = spawn('cmd.exe', ['/c', cmd], {
       cwd: projectRoot,
-      env: { ...process.env, PW_SESSION: opts.session },
+      env: { ...process.env, PW_SESSION: opts.session, SKIP_ATTACH: '1' },
       stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true,
     });
@@ -76,7 +76,7 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
     // macOS/Linux: 直接用 node
     const child = spawn('node', scriptArgs, {
       cwd: projectRoot,
-      env: { ...process.env, PW_SESSION: opts.session },
+      env: { ...process.env, PW_SESSION: opts.session, SKIP_ATTACH: '1' },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
