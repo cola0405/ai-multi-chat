@@ -287,7 +287,8 @@ export function upload(filePath: string) {
       await uploadBtn.click();
       await page.waitForTimeout(1000);
     } else {
-      const allBtns = page.locator('button');
+      // 兜底：找无文字有图标的可点击元素（button/img/svg）
+      const allBtns = page.locator('button, [role="button"]');
       const btnCount = await allBtns.count();
       for (let i = btnCount - 1; i >= Math.max(0, btnCount - 60); i--) {
         const btn = allBtns.nth(i);
@@ -295,6 +296,16 @@ export function upload(filePath: string) {
         const text = await btn.innerText().catch(() => '');
         const hasIcon = await btn.locator('img, svg').count();
         if (text.trim().length === 0 && hasIcon > 0) { await btn.click(); await page.waitForTimeout(800); break; }
+      }
+      // 如果还没找到，尝试找输入框附近的可点击 img
+      const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
+      if (await inputArea.isVisible().catch(() => false)) {
+        const parent = inputArea.locator('..');
+        const nearbyImg = parent.locator('img[cursor=pointer], img[style*="cursor"]').first();
+        if (await nearbyImg.isVisible().catch(() => false)) {
+          await nearbyImg.click();
+          await page.waitForTimeout(800);
+        }
       }
     }
     const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20/ }).first();
