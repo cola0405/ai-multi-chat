@@ -22,7 +22,6 @@ function isAlive(pid: number): boolean {
 function acquireLock(retries = 30, intervalMs = 500): void {
   for (let i = 0; i < retries; i++) {
     try {
-      // 清理过期锁（创建进程已退出）
       if (fs.existsSync(LOCK_FILE)) {
         const content = fs.readFileSync(LOCK_FILE, 'utf-8').trim();
         const pid = parseInt(content, 10);
@@ -30,17 +29,14 @@ function acquireLock(retries = 30, intervalMs = 500): void {
           fs.unlinkSync(LOCK_FILE);
         }
       }
-      // 独占创建（wx 模式：文件已存在则抛错）
       const fd = fs.openSync(LOCK_FILE, 'wx');
       fs.writeSync(fd, String(process.pid));
       fs.closeSync(fd);
-      return; // 拿到锁
+      return;
     } catch {
-      // 锁被占用，等待后重试
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, intervalMs);
     }
   }
-  // 超时：强制清理后直接拿
   try { fs.unlinkSync(LOCK_FILE); } catch { /* */ }
   const fd = fs.openSync(LOCK_FILE, 'wx');
   fs.writeSync(fd, String(process.pid));
@@ -64,7 +60,6 @@ export interface SnapshotElement {
 }
 
 // ─── 会话管理 ──────────────────────────────────────────
-// 从环境变量读取 session（由 Electron 应用注入），否则用默认值
 let _session = process.env.PW_SESSION || 'default';
 let _attached = false;
 let _attachPromise: Promise<void> | null = null;
@@ -77,7 +72,6 @@ export function getSession(): string {
   return _session;
 }
 
-/** 确保已通过 Chrome 扩展连接（首次调用时自动 attach，不阻塞） */
 function ensureAttached() {
   if (_attached) return;
   if (_attachPromise) return;
@@ -98,7 +92,6 @@ function ensureAttached() {
   });
 }
 
-/** 等待 attach 完成 */
 export async function waitForAttach(): Promise<void> {
   if (!_attached && !_attachPromise) {
     ensureAttached();
@@ -110,7 +103,6 @@ export async function waitForAttach(): Promise<void> {
 
 // ─── 核心执行 ──────────────────────────────────────────
 export function cli(args: string, timeout = 60_000): string {
-  // attach 命令本身不需要 ensureAttached
   if (!args.startsWith('attach') && !args.startsWith('detach')) {
     ensureAttached();
   }
@@ -126,12 +118,10 @@ export function cli(args: string, timeout = 60_000): string {
     const stderr = e.stderr?.toString().trim() || '';
     const stdout = e.stdout?.toString().trim() || '';
     const combined = stdout + '\n' + stderr;
-    // 如果有 Error，视为失败
     if (combined.includes('### Error')) {
       const match = combined.match(/### Error\s*[\r\n]+(.+)/);
       throw new Error(match ? match[1].trim() : stderr || stdout);
     }
-    // 如果有 Result，视为成功（run-code 结果可能在 stdout 或 stderr）
     if (combined.includes('### Result')) {
       const match = combined.match(/### Result\s*[\r\n]+(.+)/);
       return match ? match[1].trim() : stdout || stderr;
@@ -146,14 +136,11 @@ export function cliRaw(args: string, timeout = 30_000): string {
 
 // ─── 连接 / 断开 ───────────────────────────────────────
 export function open(url?: string) {
-  // 先尝试断开已存在的 session
   try {
     execSync(`playwright-cli -s=${_session} detach`, { encoding: 'utf-8', timeout: 5_000, stdio: 'pipe' });
-  } catch { /* 忽略 */ }
+  } catch { /* */ }
 
   const attachCmd = `playwright-cli attach --extension --session=${_session}`;
-
-  // 跨进程文件锁，防止多进程同时 attach 扩展
   acquireLock();
   try {
     let lastErr: unknown;
@@ -169,9 +156,8 @@ export function open(url?: string) {
           console.warn('[cli] 连接被占用，尝试强制清理后重试...');
           try {
             execSync('playwright-cli kill-all', { encoding: 'utf-8', timeout: 10_000, stdio: 'pipe' });
-          } catch { /* 忽略 */ }
+          } catch { /* */ }
         } else if (attempt < 3) {
-          // 扩展正忙，等待后重试
           Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 2000);
         }
       }
@@ -181,7 +167,6 @@ export function open(url?: string) {
     releaseLock();
   }
 
-  // 标记已连接，防止后续 cli() 调用重复 attach
   _attached = true;
   _attachPromise = null;
 
@@ -209,9 +194,7 @@ export function goto(url: string) {
   cli(`goto ${url}`);
 }
 
-/** 在新标签页中打开 URL（当前扩展不支持 tab-new，降级为 goto 导航当前 tab） */
 export function tabNew(url: string) {
-  // tab-new 暂不被 extension 模式支持，降级为 goto
   cli(`goto ${url}`);
 }
 
@@ -260,8 +243,90 @@ export function press(key: string) {
   cli(`press ${key}`);
 }
 
+/**
+ * 上传文件到当前页面。
+ * 自动处理：检查 file input → 点击上传按钮 → 点击菜单项 → 设置文件。
+ * 站点脚本只需调用 c.upload(filePath) 即可。
+ */
 export function upload(filePath: string) {
   const absPath = path.resolve(filePath);
+
+  // 检查 file input 是否已存在
+  let hasInput = false;
+  try {
+    const r = cli(`eval "document.querySelectorAll('input[type=file]').length" --raw`);
+    hasInput = parseInt(r, 10) > 0;
+  } catch { /* */ }
+
+  // 不存在则尝试点击上传按钮创建
+  if (!hasInput) {
+    const clickCode = `async page => {
+      const debug = [];
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+
+      // 1. getByRole（Gemini "Upload & tools"）
+      const roleBtn = page.getByRole('button', { name: /Upload|\\u4e0a\\u4f20|\\u6dfb\\u52a0\\u9644\\u4ef6/i }).first();
+      if (await roleBtn.isVisible().catch(() => false)) {
+        await roleBtn.click();
+        await page.waitForTimeout(1000);
+        debug.push('role');
+      } else {
+        // 2. 找输入框附近的可点击小图标
+        const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
+        if (await inputArea.isVisible().catch(() => false)) {
+          const inputBox = await inputArea.boundingBox();
+          if (inputBox) {
+            const els = page.locator('button, [role="button"], svg, img:visible');
+            const count = await els.count();
+            for (let i = 0; i < Math.min(count, 100); i++) {
+              const el = els.nth(i);
+              const box = await el.boundingBox().catch(() => null);
+              if (!box) continue;
+              if (Math.abs(box.y - inputBox.y) > 100) continue;
+              if (box.width > 50 || box.width < 5) continue;
+              const text = await el.innerText().catch(() => '');
+              if (text.trim().length > 0) continue;
+              await page.evaluate(({x, y}) => {
+                const el = document.elementFromPoint(x, y);
+                if (el) el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, clientX: x, clientY: y}));
+              }, {x: box.x + box.width / 2, y: box.y + box.height / 2});
+              await page.waitForTimeout(500);
+              const fc = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+              if (fc > 0) { debug.push('icon#' + i); break; }
+            }
+          }
+        }
+      }
+
+      // 3. 点击菜单项（本地文件/上传文档/上传文件/Upload files）
+      const menu = page.getByRole('menuitem').filter({ hasText: /\\u672c\\u5730\\u6587\\u4ef6|\\u4e0a\\u4f20\\u6587\\u6863|\\u4e0a\\u4f20\\u6587\\u4ef6|Upload files/i }).first();
+      if (await menu.isVisible().catch(() => false)) {
+        await menu.click();
+        await page.waitForTimeout(1000);
+        debug.push('menu');
+      }
+
+      // 4. 关闭文件选择框
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(500);
+
+      const fc = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+      if (fc === 0) throw new Error('No file input. ' + debug.join(','));
+      return debug.join(',');
+    }`;
+
+    const codeFile = path.join(process.cwd(), '.playwright-cli', '.click-upload.js');
+    fs.mkdirSync(path.dirname(codeFile), { recursive: true });
+    fs.writeFileSync(codeFile, clickCode, 'utf-8');
+    try {
+      cli(`run-code --filename="${codeFile}"`);
+    } finally {
+      try { fs.unlinkSync(codeFile); } catch { /* */ }
+    }
+  }
+
+  // 设置文件
   const content = fs.readFileSync(absPath);
   const base64 = content.toString('base64');
   const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -274,77 +339,7 @@ export function upload(filePath: string) {
   };
   const mime = mimeMap[ext] || 'application/octet-stream';
 
-  // Step 1: 打开文件选择框（仅在输入框不存在时）
-  const step1 = `async page => {
-    const debug = [];
-    let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-    debug.push('input=' + inputCount);
-    if (inputCount > 0) return 'input exists';
-
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
-
-    // 1. getByRole
-    const uploadBtn = page.getByRole('button', { name: /Upload|\\u4e0a\\u4f20/i }).first();
-    const roleVisible = await uploadBtn.isVisible().catch(() => false);
-    debug.push('getByRole=' + roleVisible);
-    if (roleVisible) {
-      await uploadBtn.click();
-      await page.waitForTimeout(1000);
-    } else {
-      // 2. 按位置找输入框附近的可点击小图标（按钮/图片）
-      const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
-      const areaVisible = await inputArea.isVisible().catch(() => false);
-      debug.push('inputArea=' + areaVisible);
-      if (areaVisible) {
-        const inputBox = await inputArea.boundingBox();
-        if (inputBox) {
-          // 找页面上所有可见的小元素（在输入框附近，宽度<50px）
-          const allClickables = page.locator('button, [role="button"], svg, img:visible');
-          const totalCount = await allClickables.count();
-          let found = false;
-          for (let i = 0; i < Math.min(totalCount, 100); i++) {
-            const el = allClickables.nth(i);
-            const box = await el.boundingBox().catch(() => null);
-            if (!box) continue;
-            // 必须在输入框附近（Y 差 < 100px，X 在输入框右侧或附近）
-            if (Math.abs(box.y - inputBox.y) > 100) continue;
-            if (box.width > 50 || box.width < 5) continue;
-            // 排除有文字的按钮
-            const text = await el.innerText().catch(() => '');
-            if (text.trim().length > 0) continue;
-            debug.push('clickEl=' + i + ' w=' + Math.round(box.width) + ' x=' + Math.round(box.x));
-            // 用 JS dispatchEvent 代替 Playwright click（SVG 元素兼容性更好）
-            await page.evaluate(({x, y}) => {
-              const el = document.elementFromPoint(x, y);
-              if (el) el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, clientX: x, clientY: y}));
-            }, {x: box.x + box.width / 2, y: box.y + box.height / 2});
-            await page.waitForTimeout(500);
-            const fc = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-            if (fc > 0) { found = true; break; }
-          }
-          if (!found) debug.push('noNearbyIcon');
-        }
-      }
-    }
-
-    // 3. 点击菜单项
-    const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20|\\u672c\\u5730\\u6587\\u4ef6|\\u4e0a\\u4f20\\u6587\\u6863/ }).first();
-    const menuVisible = await menuItem.isVisible().catch(() => false);
-    debug.push('menu=' + menuVisible);
-    if (menuVisible) {
-      await menuItem.click();
-      await page.waitForTimeout(1000);
-    }
-
-    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-    debug.push('after=' + inputCount);
-    if (inputCount === 0) throw new Error('No file input. ' + debug.join(' | '));
-    return debug.join(' | ');
-  }`;
-
-  // Step 3: 设置文件
-  const step3 = `async page => {
+  const setCode = `async page => {
     const result = await page.evaluate(() => {
       const inputs = document.querySelectorAll('input[type=file]');
       if (inputs.length === 0) return 'no input';
@@ -353,15 +348,14 @@ export function upload(filePath: string) {
       const file = new File([bytes], '${name}', { type: '${mime}' });
       const dt = new DataTransfer();
       dt.items.add(file);
-
-      // 选择最合适的 input：优先 accept=""（接受所有类型），其次匹配 MIME
       let input = null;
       for (const inp of inputs) {
         if (!inp.accept || inp.accept === '') { input = inp; break; }
       }
       if (!input) {
         for (const inp of inputs) {
-          if (inp.accept.includes('${ext.replace('.', '')}') || inp.accept.includes('${mime}')) { input = inp; break; }
+          const accept = inp.accept || '';
+          if (accept.includes('${ext.replace('.', '')}') || accept.includes('${mime}')) { input = inp; break; }
         }
       }
       if (!input) input = inputs[inputs.length - 1];
@@ -382,29 +376,16 @@ export function upload(filePath: string) {
     return result;
   }`;
 
-  const codeFile1 = path.join(process.cwd(), '.playwright-cli', '.upload-step1.js');
-  const codeFile3 = path.join(process.cwd(), '.playwright-cli', '.upload-step3.js');
-  fs.mkdirSync(path.dirname(codeFile1), { recursive: true });
-  fs.writeFileSync(codeFile1, step1, 'utf-8');
-  fs.writeFileSync(codeFile3, step3, 'utf-8');
-
+  const setFile = path.join(process.cwd(), '.playwright-cli', '.upload-set.js');
+  fs.writeFileSync(setFile, setCode, 'utf-8');
   try {
-    // Step 1: 确保文件输入框存在
-    const step1Result = cli(`run-code --filename="${codeFile1}"`);
-    // Step 2: 如果打开了文件选择框，用 upload 命令关闭
-    if (step1Result.includes('chooser opened')) {
-      try { cli(`upload "${absPath}"`); } catch { /* 忽略 */ }
-    }
-    // Step 3: 设置文件
-    return cli(`run-code --filename="${codeFile3}"`);
+    return cli(`run-code --filename="${setFile}"`);
   } finally {
-    try { fs.unlinkSync(codeFile1); } catch { /* */ }
-    try { fs.unlinkSync(codeFile3); } catch { /* */ }
+    try { fs.unlinkSync(setFile); } catch { /* */ }
   }
 }
 
 export function drop(ref: string, filePath: string) {
-  // drop 命令不存在，改用 upload 方式
   upload(filePath);
 }
 
