@@ -286,13 +286,13 @@ ChatGLM 自动化
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
       case "--file":
-        filePath = args[++i];
+        filePath = args[++i]?.replace(/^"|"$/g, "");
         break;
       case "--discover":
         discover = true;
         break;
       default:
-        if (!args[i].startsWith("--")) prompt = args[i];
+        if (!args[i].startsWith("--")) prompt = args[i].replace(/^"|"$/g, "");
     }
   }
 
