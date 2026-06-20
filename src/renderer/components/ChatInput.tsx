@@ -1,8 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { Attachment } from '../types';
 
 interface ChatInputProps {
   onSend: (prompt: string, attachments: Attachment[]) => void;
+  attachments: Attachment[];
+  onAttachmentsChange: (attachments: Attachment[]) => void;
 }
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
@@ -12,12 +14,31 @@ function getFileType(filename: string): 'image' | 'document' {
   return IMAGE_EXTS.includes(ext) ? 'image' : 'document';
 }
 
-export function ChatInput({ onSend }: ChatInputProps) {
+function ImageThumb({ path, name }: { path: string; name: string }) {
+  const [src, setSrc] = useState<string>('');
+
+  useEffect(() => {
+    let revoked = false;
+    (async () => {
+      try {
+        const resp = await fetch(`file://${path}`);
+        const blob = await resp.blob();
+        if (!revoked) setSrc(URL.createObjectURL(blob));
+      } catch {
+        setSrc('');
+      }
+    })();
+    return () => { revoked = true; };
+  }, [path]);
+
+  if (!src) return <div className="attachment-icon">?</div>;
+  return <img src={src} alt={name} className="attachment-thumb" />;
+}
+
+export function ChatInput({ onSend, attachments, onAttachmentsChange }: ChatInputProps) {
   const [prompt, setPrompt] = useState('');
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // 自动调整 textarea 高度
   const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
     const el = e.target;
@@ -25,7 +46,6 @@ export function ChatInput({ onSend }: ChatInputProps) {
     el.style.height = Math.min(el.scrollHeight, 200) + 'px';
   }, []);
 
-  // 添加附件
   const handleAddFiles = useCallback(async () => {
     const filePaths = await window.api.selectFiles();
     if (filePaths.length === 0) return;
@@ -34,43 +54,24 @@ export function ChatInput({ onSend }: ChatInputProps) {
       name: fp.split(/[/\\]/).pop() || fp,
       type: getFileType(fp),
     }));
-    setAttachments((prev) => [...prev, ...newAttachments]);
-  }, []);
+    onAttachmentsChange([...attachments, ...newAttachments]);
+  }, [attachments, onAttachmentsChange]);
 
-  // 移除附件
   const handleRemoveAttachment = useCallback((index: number) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+    onAttachmentsChange(attachments.filter((_, i) => i !== index));
+  }, [attachments, onAttachmentsChange]);
 
-  // 拖拽添加
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    const newAttachments: Attachment[] = files.map((f) => ({
-      path: f.path,
-      name: f.name,
-      type: getFileType(f.name),
-    }));
-    setAttachments((prev) => [...prev, ...newAttachments]);
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-  }, []);
-
-  // 发送
   const handleSend = useCallback(() => {
     const trimmed = prompt.trim();
     if (!trimmed) return;
     onSend(trimmed, attachments);
     setPrompt('');
-    setAttachments([]);
+    onAttachmentsChange([]);
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-  }, [prompt, attachments, onSend]);
+  }, [prompt, attachments, onSend, onAttachmentsChange]);
 
-  // Enter 发送，Shift+Enter 换行
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -82,14 +83,13 @@ export function ChatInput({ onSend }: ChatInputProps) {
   );
 
   return (
-    <div className="chat-input-area" onDrop={handleDrop} onDragOver={handleDragOver}>
-      {/* 附件预览 */}
+    <div className="chat-input-area">
       {attachments.length > 0 && (
         <div className="attachments-preview">
           {attachments.map((att, idx) => (
             <div key={idx} className="attachment-chip">
               {att.type === 'image' ? (
-                <img src={`file://${att.path}`} alt={att.name} className="attachment-thumb" />
+                <ImageThumb path={att.path} name={att.name} />
               ) : (
                 <div className="attachment-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -111,7 +111,6 @@ export function ChatInput({ onSend }: ChatInputProps) {
         </div>
       )}
 
-      {/* 输入区域 */}
       <div className="input-row">
         <button
           className="btn-attach"

@@ -92,12 +92,11 @@ async function fillPrompt(text: string): Promise<void> {
 
   if (ref) {
     log(`找到输入框: ${ref}`);
-    c.fill(ref, text);
+    c.click(ref);
+    await c.sleep(300);
+    c.typeText(text);
   } else {
-    log("未找到输入框 ref，尝试点击后键入");
-    const clickRef = c.findByKeywords(snap, ["prompt", "ask", "enter", "message"]);
-    if (clickRef) c.click(clickRef);
-    await c.sleep(500);
+    log("未找到输入框 ref，直接键入");
     c.typeText(text);
   }
 
@@ -110,38 +109,13 @@ async function uploadAttachment(filePath: string): Promise<void> {
   if (!fs.existsSync(absPath)) throw new Error(`附件不存在: ${absPath}`);
 
   log(`上传附件: ${absPath}`);
-
-  // 策略1：upload 命令（触发 filechooser）
   try {
     c.upload(absPath);
-    log("upload 成功");
-    await c.sleep(3000);
-    return;
-  } catch {
-    // 策略2：找上传/附件按钮 → drop
+    log("上传成功");
+    await c.sleep(2000);
+  } catch (err) {
+    throw new Error(`上传失败: ${err instanceof Error ? err.message : String(err)}`);
   }
-
-  const snap = c.snapshot();
-  const ref = c.findByKeywords(snap, KW.upload);
-  if (ref) {
-    c.drop(ref, absPath);
-    log(`drop ${ref} 成功`);
-    await c.sleep(3000);
-    return;
-  }
-
-  // 策略3：点击 + 按钮触发 filechooser
-  const plusRef = c.findByKeywords(snap, ["+", "plus", "add", "more"]);
-  if (plusRef) {
-    c.click(plusRef);
-    await c.sleep(1000);
-    c.upload(absPath);
-    log("通过 + 按钮上传成功");
-    await c.sleep(3000);
-    return;
-  }
-
-  throw new Error("未找到上传入口");
 }
 
 async function clickSend(): Promise<void> {
@@ -336,13 +310,13 @@ ChatGPT 自动化
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
       case "--file":
-        filePath = args[++i];
+        filePath = args[++i]?.replace(/^"|"$/g, "");
         break;
       case "--discover":
         discover = true;
         break;
       default:
-        if (!args[i].startsWith("--")) prompt = args[i];
+        if (!args[i].startsWith("--")) prompt = args[i].replace(/^"|"$/g, "");
     }
   }
 

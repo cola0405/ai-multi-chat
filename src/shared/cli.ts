@@ -109,7 +109,7 @@ export async function waitForAttach(): Promise<void> {
 }
 
 // ─── 核心执行 ──────────────────────────────────────────
-export function cli(args: string, timeout = 30_000): string {
+export function cli(args: string, timeout = 60_000): string {
   // attach 命令本身不需要 ensureAttached
   if (!args.startsWith('attach') && !args.startsWith('detach')) {
     ensureAttached();
@@ -122,9 +122,20 @@ export function cli(args: string, timeout = 30_000): string {
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch (err: unknown) {
-    const e = err as { stderr?: string; stdout?: string; message?: string };
+    const e = err as { stderr?: string; stdout?: string; message?: string; status?: number };
     const stderr = e.stderr?.toString().trim() || '';
     const stdout = e.stdout?.toString().trim() || '';
+    const combined = stdout + '\n' + stderr;
+    // 如果有 Error，视为失败
+    if (combined.includes('### Error')) {
+      const match = combined.match(/### Error\s*[\r\n]+(.+)/);
+      throw new Error(match ? match[1].trim() : stderr || stdout);
+    }
+    // 如果有 Result，视为成功（run-code 结果可能在 stdout 或 stderr）
+    if (combined.includes('### Result')) {
+      const match = combined.match(/### Result\s*[\r\n]+(.+)/);
+      return match ? match[1].trim() : stdout || stderr;
+    }
     throw new Error(`命令失败: ${fullCmd}\n${stderr || stdout || e.message}`);
   }
 }
@@ -250,11 +261,130 @@ export function press(key: string) {
 }
 
 export function upload(filePath: string) {
-  cli(`upload "${path.resolve(filePath)}"`);
+  const absPath = path.resolve(filePath);
+  const content = fs.readFileSync(absPath);
+  const base64 = content.toString('base64');
+  const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  const ext = path.extname(absPath).toLowerCase();
+  const mimeMap: Record<string, string> = {
+    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+    '.gif': 'image/gif', '.webp': 'image/webp', '.bmp': 'image/bmp',
+    '.svg': 'image/svg+xml', '.pdf': 'application/pdf',
+    '.txt': 'text/plain', '.csv': 'text/csv', '.json': 'application/json',
+  };
+  const mime = mimeMap[ext] || 'application/octet-stream';
+
+  // Step 1: 打开文件选择框（仅在输入框不存在时）
+  const step1 = `async page => {
+    let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+    if (inputCount > 0) return 'input exists';
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+
+    const uploadBtn = page.getByRole('button', { name: /Upload|\\u4e0a\\u4f20/i }).first();
+    if (await uploadBtn.isVisible().catch(() => false)) {
+      await uploadBtn.click();
+      await page.waitForTimeout(1000);
+    } else {
+      // 兜底：在输入框附近找无文字有图标的可点击元素
+      const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
+      const container = inputArea.locator('xpath=ancestor::div[5]');
+      
+      // 尝试找 button 里的图标
+      const nearbyBtns = container.locator('button, [role="button"]');
+      const nearbyCount = await nearbyBtns.count();
+      let found = false;
+      for (let i = nearbyCount - 1; i >= 0; i--) {
+        const btn = nearbyBtns.nth(i);
+        if (!(await btn.isVisible().catch(() => false))) continue;
+        const text = await btn.innerText().catch(() => '');
+        const hasIcon = await btn.locator('img, svg').count();
+        if (text.trim().length === 0 && hasIcon > 0) { await btn.click(); await page.waitForTimeout(800); found = true; break; }
+      }
+      
+      // 如果没找到，尝试找 svg[role=img]（Kimi 的上传按钮是 SVG）
+      if (!found) {
+        const svgs = container.locator('svg[role="img"]');
+        const svgCount = await svgs.count();
+        for (let i = 0; i < Math.min(svgCount, 5); i++) {
+          const svg = svgs.nth(i);
+          if (!(await svg.isVisible().catch(() => false))) continue;
+          await svg.click();
+          await page.waitForTimeout(500);
+          const count = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+          if (count > 0) break;
+        }
+      }
+    }
+    const menuItem = page.getByRole('menuitem').filter({ hasText: /Upload files|\\u4e0a\\u4f20|\\u672c\\u5730\\u6587\\u4ef6/ }).first();
+    if (await menuItem.isVisible().catch(() => false)) { await menuItem.click(); await page.waitForTimeout(1000); }
+    return 'chooser opened';
+  }`;
+
+  // Step 3: 设置文件
+  const step3 = `async page => {
+    const result = await page.evaluate(() => {
+      const inputs = document.querySelectorAll('input[type=file]');
+      if (inputs.length === 0) return 'no input';
+      const b64 = '${base64}';
+      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      const file = new File([bytes], '${name}', { type: '${mime}' });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+
+      // 选择最合适的 input：优先 accept=""（接受所有类型），其次匹配 MIME
+      let input = null;
+      for (const inp of inputs) {
+        if (!inp.accept || inp.accept === '') { input = inp; break; }
+      }
+      if (!input) {
+        for (const inp of inputs) {
+          if (inp.accept.includes('${ext.replace('.', '')}') || inp.accept.includes('${mime}')) { input = inp; break; }
+        }
+      }
+      if (!input) input = inputs[inputs.length - 1];
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
+      if (setter && setter.set) setter.set.call(input, dt.files);
+      else input.files = dt.files;
+      const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
+      if (propsKey) {
+        const props = input[propsKey];
+        if (props && props.onChange) {
+          props.onChange({ target: input, currentTarget: input });
+          return 'uploaded ' + file.name + ' via React';
+        }
+      }
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return 'uploaded ' + file.name + ' via native';
+    });
+    return result;
+  }`;
+
+  const codeFile1 = path.join(process.cwd(), '.playwright-cli', '.upload-step1.js');
+  const codeFile3 = path.join(process.cwd(), '.playwright-cli', '.upload-step3.js');
+  fs.mkdirSync(path.dirname(codeFile1), { recursive: true });
+  fs.writeFileSync(codeFile1, step1, 'utf-8');
+  fs.writeFileSync(codeFile3, step3, 'utf-8');
+
+  try {
+    // Step 1: 确保文件输入框存在
+    const step1Result = cli(`run-code --filename="${codeFile1}"`);
+    // Step 2: 如果打开了文件选择框，用 upload 命令关闭
+    if (step1Result.includes('chooser opened')) {
+      try { cli(`upload "${absPath}"`); } catch { /* 忽略 */ }
+    }
+    // Step 3: 设置文件
+    return cli(`run-code --filename="${codeFile3}"`);
+  } finally {
+    try { fs.unlinkSync(codeFile1); } catch { /* */ }
+    try { fs.unlinkSync(codeFile3); } catch { /* */ }
+  }
 }
 
 export function drop(ref: string, filePath: string) {
-  cli(`drop ${ref} --path="${path.resolve(filePath)}"`);
+  // drop 命令不存在，改用 upload 方式
+  upload(filePath);
 }
 
 // ─── 提取文本 ──────────────────────────────────────────

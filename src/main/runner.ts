@@ -45,8 +45,7 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
     const relativeScript = path.relative(projectRoot, opts.scriptPath);
     let cmd = `chcp 65001 >nul && node ${relativeTsxCli} ${relativeScript} "${opts.prompt}"`;
     if (opts.filePath) {
-      const relativeFile = path.relative(projectRoot, opts.filePath);
-      cmd += ` --file "${relativeFile}"`;
+      cmd += ` --file "${opts.filePath}"`;
     }
     const child = spawn('cmd.exe', ['/c', cmd], {
       cwd: projectRoot,

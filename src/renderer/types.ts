@@ -60,6 +60,7 @@ export interface ElectronAPI {
   onRunEvent: (callback: (event: RunEvent) => void) => () => void;
   selectFiles: () => Promise<string[]>;
   readTsFile: () => Promise<{ path: string; name: string; content: string } | null>;
+  getPathForFile: (file: File) => string;
 }
 
 declare global {

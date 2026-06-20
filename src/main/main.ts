@@ -116,7 +116,7 @@ function setupIpcHandlers(): void {
       const filePath = payload.attachments.length > 0 ? payload.attachments[0] : undefined;
       const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
-      console.log(`[run] 顺序启动 ${payload.sites.length} 个站点...`);
+      console.log(`[run] 启动 ${payload.sites.length} 个站点, filePath:`, filePath);
 
       const emit = (data: Record<string, unknown>) => {
         const eventData = { runId, statusMsgId: payload.statusMsgId, ...data };
