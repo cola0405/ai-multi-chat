@@ -1,0 +1,711 @@
+- generic [ref=e1]:
+  - main [ref=e9]:
+    - generic [ref=e108]:
+      - link "New chat" [ref=e109] [cursor=pointer]:
+        - /url: /
+        - img [ref=e111]
+        - generic [ref=e112]: Gemini
+      - text: side_nav_expand
+    - generic [ref=e115]:
+      - link "Upgrade" [ref=e118]:
+        - generic [ref=e119]:
+          - img [ref=e120]: spark
+          - generic [ref=e121]: Upgrade
+      - generic [ref=e124]:
+        - generic: play_arrow
+        - button "Open menu for conversation actions." [ref=e232] [cursor=pointer]:
+          - img [ref=e234]: more_vert
+    - generic [ref=e11]:
+      - navigation "Side Navigation" [ref=e12]:
+        - generic [ref=e14]:
+          - button "Close sidebar" [ref=e132] [cursor=pointer]:
+            - img [ref=e134]: side_nav
+          - generic [ref=e15]:
+            - generic [ref=e16]:
+              - navigation "Main actions menu" [ref=e17]:
+                - link "New chat" [ref=e137] [cursor=pointer]:
+                  - /url: /app
+                  - img [ref=e140]: gemini_chat
+                  - generic [ref=e144]: New chat
+                - link "Search chats" [ref=e145] [cursor=pointer]:
+                  - /url: /search
+                  - img [ref=e148]: search
+                  - generic [ref=e152]: Search chats
+              - text: image_create library gems
+            - generic [ref=e153]:
+              - navigation "Additional actions menu" [ref=e154]:
+                - link "Images" [ref=e156] [cursor=pointer]:
+                  - /url: /images
+                  - img [ref=e159]: image_create
+                  - generic [ref=e163]: Images
+                - link "Library" [ref=e165] [cursor=pointer]:
+                  - /url: library
+                  - img [ref=e168]: library
+                  - generic [ref=e172]: Library
+                - link "Gems" [ref=e174] [cursor=pointer]:
+                  - /url: /gems/view
+                  - img [ref=e177]: gems
+                  - generic [ref=e181]: Gems
+              - generic [ref=e237]:
+                - button "Toggle Notebooks" [expanded] [ref=e238] [cursor=pointer]:
+                  - generic [ref=e239]: Notebooks
+                  - img [ref=e241]: keyboard_arrow_down
+                - navigation [ref=e245]:
+                  - link "New notebook" [ref=e247] [cursor=pointer]:
+                    - /url: /notebooks/create
+                    - img [ref=e250]: add_2
+                    - generic [ref=e254]: New notebook
+                  - link "OpenClaw Agent 实践与产品指南" [ref=e257] [cursor=pointer]:
+                    - /url: /notebook/dd1dffc0-f96e-4f35-a0d5-751f78ac7da3
+                    - img [ref=e260]: notebook
+                    - generic [ref=e264]: OpenClaw Agent 实践与产品指南
+                  - link "社会观察：教育、旅行与经验见闻" [ref=e267] [cursor=pointer]:
+                    - /url: /notebook/b8b4b22a-a03b-4900-9080-dcd414eb90ff
+                    - img [ref=e270]: notebook
+                    - generic [ref=e274]: 社会观察：教育、旅行与经验见闻
+                  - link "All notebooks" [ref=e276] [cursor=pointer]:
+                    - /url: /notebooks/view
+                    - img [ref=e279]: more_horiz
+                    - generic [ref=e283]: All notebooks
+              - generic [ref=e285]:
+                - button "Toggle Recents" [expanded] [ref=e286] [cursor=pointer]:
+                  - generic [ref=e287]: Recents
+                  - img [ref=e289]: keyboard_arrow_down
+                - navigation [ref=e295]:
+                  - link "Triple Greeting, Triple Energy" [ref=e297] [cursor=pointer]:
+                    - /url: /app/49688b5a48cf95db
+                    - generic [ref=e301]: Triple Greeting, Triple Energy
+                  - link "Greeting and Offer of Help" [ref=e303] [cursor=pointer]:
+                    - /url: /app/ccf770ce8d1c9ff4
+                    - generic [ref=e307]: Greeting and Offer of Help
+                  - link "AI 助手自我介绍" [ref=e309] [cursor=pointer]:
+                    - /url: /app/3bb43ca27be1e544
+                    - generic [ref=e313]: AI 助手自我介绍
+                  - link "AI 助手自我介绍" [ref=e315] [cursor=pointer]:
+                    - /url: /app/ce6eed3ba4e5f612
+                    - generic [ref=e319]: AI 助手自我介绍
+                  - link "AI 助手自我介绍" [ref=e321] [cursor=pointer]:
+                    - /url: /app/9d2962e5c64d4dfa
+                    - generic [ref=e325]: AI 助手自我介绍
+                  - link "简单的数学问题" [ref=e327] [cursor=pointer]:
+                    - /url: /app/b38d661f209233e8
+                    - generic [ref=e331]: 简单的数学问题
+                  - link "地球到月球的距离" [ref=e333] [cursor=pointer]:
+                    - /url: /app/a4a22b3ae102e37a
+                    - generic [ref=e337]: 地球到月球的距离
+                  - link "量子力学三句话介绍" [ref=e339] [cursor=pointer]:
+                    - /url: /app/77a2aa639469bcc6
+                    - generic [ref=e343]: 量子力学三句话介绍
+                  - link "简单的数学问题" [ref=e345] [cursor=pointer]:
+                    - /url: /app/275b2b1ae51937dc
+                    - generic [ref=e349]: 简单的数学问题
+                  - link "简单数学问题解答" [ref=e351] [cursor=pointer]:
+                    - /url: /app/f08dc6e97507558a
+                    - generic [ref=e355]: 简单数学问题解答
+                  - link "AI 助手自我介绍" [ref=e357] [cursor=pointer]:
+                    - /url: /app/12fe5110f55d99eb
+                    - generic [ref=e361]: AI 助手自我介绍
+                  - link "简单的数学问题" [ref=e363] [cursor=pointer]:
+                    - /url: /app/8466a6a7a0e7b822
+                    - generic [ref=e367]: 简单的数学问题
+                  - link "AI 助手自我介绍" [ref=e369] [cursor=pointer]:
+                    - /url: /app/e88038b7579825d7
+                    - generic [ref=e373]: AI 助手自我介绍
+                  - link "Electron Playwright AI 聚合应用建议" [ref=e375] [cursor=pointer]:
+                    - /url: /app/148a22de59fede5b
+                    - generic [ref=e379]: Electron Playwright AI 聚合应用建议
+                  - link "Playwright 自动化操作豆包网站" [ref=e381] [cursor=pointer]:
+                    - /url: /app/748248e29e743a70
+                    - generic [ref=e385]: Playwright 自动化操作豆包网站
+                  - link "HTML 性能优化与 GPU 占用降低" [ref=e387] [cursor=pointer]:
+                    - /url: /app/835d1287d0d68df3
+                    - generic [ref=e391]: HTML 性能优化与 GPU 占用降低
+                  - link "优化HTML性能与GPU占用" [ref=e393] [cursor=pointer]:
+                    - /url: /app/bb26cd8a6e95d0f2
+                    - generic [ref=e397]: 优化HTML性能与GPU占用
+                  - link "HTML 性能优化建议" [ref=e399] [cursor=pointer]:
+                    - /url: /app/96d511ac9d5b9b5c
+                    - generic [ref=e403]: HTML 性能优化建议
+                  - link "HTML 性能优化方案解析" [ref=e405] [cursor=pointer]:
+                    - /url: /app/954e0f5e36674d7f
+                    - generic [ref=e409]: HTML 性能优化方案解析
+                  - link "调整粒子效果速度" [ref=e411] [cursor=pointer]:
+                    - /url: /app/0ad8c6be3ef1ff01
+                    - generic [ref=e415]: 调整粒子效果速度
+                  - link "优化粒子动画卡顿问题" [ref=e417] [cursor=pointer]:
+                    - /url: /app/15df7e14dad5d2fc
+                    - generic [ref=e421]: 优化粒子动画卡顿问题
+                  - link "优化 Canvas 动画性能" [ref=e423] [cursor=pointer]:
+                    - /url: /app/1df71e6641a88339
+                    - generic [ref=e427]: 优化 Canvas 动画性能
+                  - link "粒子动画性能优化方案" [ref=e429] [cursor=pointer]:
+                    - /url: /app/8d0ca28787608c96
+                    - generic [ref=e433]: 粒子动画性能优化方案
+                  - link "Canvas 动画性能优化指南" [ref=e435] [cursor=pointer]:
+                    - /url: /app/a0140d77ca5030da
+                    - generic [ref=e439]: Canvas 动画性能优化指南
+                  - link "AI Station 几何图形装饰实现" [ref=e441] [cursor=pointer]:
+                    - /url: /app/6bbc71f25ac7b9eb
+                    - generic [ref=e445]: AI Station 几何图形装饰实现
+                  - link "AI Station 界面装饰元素实现" [ref=e447] [cursor=pointer]:
+                    - /url: /app/874b1bfdf64578ea
+                    - generic [ref=e451]: AI Station 界面装饰元素实现
+                  - link "界面设计优化建议与方案" [ref=e453] [cursor=pointer]:
+                    - /url: /app/dfc791360ee4fdb0
+                    - generic [ref=e457]: 界面设计优化建议与方案
+                  - link "全息科技底座动画代码更新" [ref=e459] [cursor=pointer]:
+                    - /url: /app/0f4b05cc957d1fed
+                    - generic [ref=e463]: 全息科技底座动画代码更新
+                  - link "科技感流光动画组件开发" [ref=e465] [cursor=pointer]:
+                    - /url: /app/9d9d48a076e9430d
+                    - generic [ref=e469]: 科技感流光动画组件开发
+                  - link "绿色流光动画设计与实现" [ref=e471] [cursor=pointer]:
+                    - /url: /app/0e17677b5fe1608c
+                    - generic [ref=e475]: 绿色流光动画设计与实现
+                  - link "设计师点评博客阅读界面" [ref=e477] [cursor=pointer]:
+                    - /url: /app/58b3bcb0d5330ef2
+                    - generic [ref=e481]: 设计师点评博客阅读界面
+                  - link "HTML 性能优化建议" [ref=e483] [cursor=pointer]:
+                    - /url: /app/0f2f3d4ae6a24ea4
+                    - generic [ref=e487]: HTML 性能优化建议
+                  - link "星芒设计调整" [ref=e489] [cursor=pointer]:
+                    - /url: /app/73a45aa476875d84
+                    - generic [ref=e493]: 星芒设计调整
+                  - link "视觉引导方案设计" [ref=e495] [cursor=pointer]:
+                    - /url: /app/3105464c0ecda988
+                    - generic [ref=e499]: 视觉引导方案设计
+                  - link "博客首页右侧设计优化建议" [ref=e501] [cursor=pointer]:
+                    - /url: /app/8235c3c1378282fe
+                    - generic [ref=e505]: 博客首页右侧设计优化建议
+                  - link "CSS 流光效果网页 Demo" [ref=e507] [cursor=pointer]:
+                    - /url: /app/17e404756ae2bc30
+                    - generic [ref=e511]: CSS 流光效果网页 Demo
+                  - link "流光效果技术描述与实现建议" [ref=e513] [cursor=pointer]:
+                    - /url: /app/ea6e75319e39fb6e
+                    - generic [ref=e517]: 流光效果技术描述与实现建议
+                  - link "流光效果代码重构与优化" [ref=e519] [cursor=pointer]:
+                    - /url: /app/f21b805bc8b9dc0a
+                    - generic [ref=e523]: 流光效果代码重构与优化
+                  - link "丝带流光特效 HTML Demo" [ref=e525] [cursor=pointer]:
+                    - /url: /app/d69064868dd23a55
+                    - generic [ref=e529]: 丝带流光特效 HTML Demo
+                  - link "流光特效转丝带效果实现" [ref=e531] [cursor=pointer]:
+                    - /url: /app/5f622ede60978451
+                    - generic [ref=e535]: 流光特效转丝带效果实现
+                  - link "优化流光效果代码" [ref=e537] [cursor=pointer]:
+                    - /url: /app/9f99871c814d3e39
+                    - generic [ref=e541]: 优化流光效果代码
+                  - link "动感流光效果优化方案" [ref=e543] [cursor=pointer]:
+                    - /url: /app/0f582449373ec2f0
+                    - generic [ref=e547]: 动感流光效果优化方案
+                  - link "HTML Canvas Energy Stream Demo" [ref=e549] [cursor=pointer]:
+                    - /url: /app/9be558443f9bca01
+                    - generic [ref=e553]: HTML Canvas Energy Stream Demo
+                  - link "Visual Effect Translation and Explanation" [ref=e555] [cursor=pointer]:
+                    - /url: /app/363e6baa97c1db4d
+                    - generic [ref=e559]: Visual Effect Translation and Explanation
+                  - link "HTML Canvas Streamer Effect Demo" [ref=e561] [cursor=pointer]:
+                    - /url: /app/160b3e097296289d
+                    - generic [ref=e565]: HTML Canvas Streamer Effect Demo
+                  - link "中间流光效果的文字描述" [ref=e567] [cursor=pointer]:
+                    - /url: /app/c40f5e71390dc6d5
+                    - generic [ref=e571]: 中间流光效果的文字描述
+                  - link "首页流光效果技术实现指南" [ref=e573] [cursor=pointer]:
+                    - /url: /app/f0be7dca1f5a1806
+                    - generic [ref=e577]: 首页流光效果技术实现指南
+                  - link "博客首页设计与SVG实现" [ref=e579] [cursor=pointer]:
+                    - /url: /app/d8ccbbc050714007
+                    - generic [ref=e583]: 博客首页设计与SVG实现
+                  - link "博客首页改版：科技流光与全息底座" [ref=e585] [cursor=pointer]:
+                    - /url: /app/c19eaa980b46ca81
+                    - generic [ref=e589]: 博客首页改版：科技流光与全息底座
+                  - link "博客设计优化建议" [ref=e591] [cursor=pointer]:
+                    - /url: /app/eadcc0a42e1948f4
+                    - generic [ref=e595]: 博客设计优化建议
+                  - link "博客设计优化：AI工具评测网站" [ref=e597] [cursor=pointer]:
+                    - /url: /app/1874d81c81499678
+                    - generic [ref=e601]: 博客设计优化：AI工具评测网站
+                  - link "博客网站设计：AI 工具评测" [ref=e603] [cursor=pointer]:
+                    - /url: /app/2860e1cb19023269
+                    - generic [ref=e607]: 博客网站设计：AI 工具评测
+                  - link "博客网站重设计方案" [ref=e609] [cursor=pointer]:
+                    - /url: /app/02801921cc980244
+                    - generic [ref=e613]: 博客网站重设计方案
+                  - link "博客改版：暗黑科技风设计" [ref=e615] [cursor=pointer]:
+                    - /url: /app/2ad5dcb4eaf97aba
+                    - generic [ref=e619]: 博客改版：暗黑科技风设计
+                  - link "博客网站重设计与代码生成" [ref=e621] [cursor=pointer]:
+                    - /url: /app/f321e32f3b5943a6
+                    - generic [ref=e625]: 博客网站重设计与代码生成
+                  - link "视觉交互优化与代码重构" [ref=e627] [cursor=pointer]:
+                    - /url: /app/b923fdeef1f77bc1
+                    - generic [ref=e631]: 视觉交互优化与代码重构
+                  - link "博客首页设计优化建议" [ref=e633] [cursor=pointer]:
+                    - /url: /app/5dfa2a10021efb54
+                    - generic [ref=e637]: 博客首页设计优化建议
+                  - link "SVG 转 PNG 脚本指南" [ref=e639] [cursor=pointer]:
+                    - /url: /app/47e3ce6478ac5c9e
+                    - generic [ref=e643]: SVG 转 PNG 脚本指南
+                  - link "网站首页设计：AI 工具博客" [ref=e645] [cursor=pointer]:
+                    - /url: /app/361e919ffd855c02
+                    - generic [ref=e649]: 网站首页设计：AI 工具博客
+                  - link "AI 博客配色方案推荐" [ref=e651] [cursor=pointer]:
+                    - /url: /app/6a46d389717a2892
+                    - generic [ref=e655]: AI 博客配色方案推荐
+                  - link "右对齐排版 HTML Demo" [ref=e657] [cursor=pointer]:
+                    - /url: /app/0ef1c3f219d67ac7
+                    - generic [ref=e661]: 右对齐排版 HTML Demo
+                  - link "AI 驱动的全栈后端搭建" [ref=e663] [cursor=pointer]:
+                    - /url: /app/2ca7d194c46edb3a
+                    - generic [ref=e667]: AI 驱动的全栈后端搭建
+                  - link "AI 驱动后端服务搭建教学" [ref=e669] [cursor=pointer]:
+                    - /url: /app/679ec4a63910d52a
+                    - generic [ref=e673]: AI 驱动后端服务搭建教学
+                  - link "AI 网站列表设计优化方案" [ref=e675] [cursor=pointer]:
+                    - /url: /app/4a8c835a55f5f52f
+                    - generic [ref=e679]: AI 网站列表设计优化方案
+                  - link "双列瀑布流优化建议" [ref=e681] [cursor=pointer]:
+                    - /url: /app/bca07a5633fd1a65
+                    - generic [ref=e685]: 双列瀑布流优化建议
+                  - link "博客瀑布流手机端优化方案" [ref=e687] [cursor=pointer]:
+                    - /url: /app/bbed57c05071bc8d
+                    - generic [ref=e691]: 博客瀑布流手机端优化方案
+                  - link "改造方案优化建议" [ref=e693] [cursor=pointer]:
+                    - /url: /app/4752cdf2042c17c4
+                    - generic [ref=e697]: 改造方案优化建议
+                  - link "博客优化：边框与科技感点缀" [ref=e699] [cursor=pointer]:
+                    - /url: /app/c09a66b95bff458a
+                    - generic [ref=e703]: 博客优化：边框与科技感点缀
+                  - link "AI 科技风动态背景 HTML Demo" [ref=e705] [cursor=pointer]:
+                    - /url: /app/b07313fd0ba7a5fd
+                    - generic [ref=e709]: AI 科技风动态背景 HTML Demo
+                  - link "背景设计方案选择" [ref=e711] [cursor=pointer]:
+                    - /url: /app/7e821ec8d97e989f
+                    - generic [ref=e715]: 背景设计方案选择
+                  - link "粒子运动学不连续修复" [ref=e717] [cursor=pointer]:
+                    - /url: /app/48310f74957fd7ac
+                    - generic [ref=e721]: 粒子运动学不连续修复
+                  - link "UI 视觉优化建议" [ref=e723] [cursor=pointer]:
+                    - /url: /app/fdc6fc2d940c8575
+                    - generic [ref=e727]: UI 视觉优化建议
+                  - link "霓虹渐变背景 CSS 演示" [ref=e729] [cursor=pointer]:
+                    - /url: /app/7309678c36a2c94b
+                    - generic [ref=e733]: 霓虹渐变背景 CSS 演示
+                  - link "文章列表配色设计优化方案" [ref=e735] [cursor=pointer]:
+                    - /url: /app/2680e22875a2e79e
+                    - generic [ref=e739]: 文章列表配色设计优化方案
+                  - 'link "你看一下页面，我觉得配色设计有点单调，你有没有什么设计方案？ 【文章详细】的配色方案是这样的： 文字层级色值使用场景文章一级大标题#F8F8FF页面顶部文章主标题二级小标题（你指定）#f0f400章节子标题，视觉焦点正文常规段落#F8F8FF普通正文内容Note 提示框内文字#F0EBFF柔和浅紫白，在 #271E42 底色上可读性拉满辅助弱文字#A9A2C2发布时间、阅读量、分类小字标签内文字#FFFFFF分类、免费标签内部白色小字" [ref=e741] [cursor=pointer]':
+                    - /url: /app/be2cf19b78c96c2b
+                    - generic [ref=e745]: "你看一下页面，我觉得配色设计有点单调，你有没有什么设计方案？ 【文章详细】的配色方案是这样的： 文字层级色值使用场景文章一级大标题#F8F8FF页面顶部文章主标题二级小标题（你指定）#f0f400章节子标题，视觉焦点正文常规段落#F8F8FF普通正文内容Note 提示框内文字#F0EBFF柔和浅紫白，在 #271E42 底色上可读性拉满辅助弱文字#A9A2C2发布时间、阅读量、分类小字标签内文字#FFFFFF分类、免费标签内部白色小字"
+                  - link [ref=e747] [cursor=pointer]:
+                    - /url: /app/c1a44a077e2ee9df
+                    - generic [ref=e751]: "1. 主标题：AI STATION（核心大字,分两层，） 字体：无衬线粗黑体 / 等宽科技字体（Inter Black / JetBrains Mono Bold） 字号：桌面端 AI 120px STATION 104px，移动端自适应相同比例缩小 字间距：letter-spacing: 12px 大幅拉开字母，科技舒展感 色彩分层渐变： AI：纯白色 #ffffff STATION：线性渐变 #c888ff → #9933ee（和左上角 LOGO 紫色完全统一） 文字特效（适配后方粒子背景，不冲突） 微弱外发光：淡紫 rgba(160, 70, 255, 0.3) 模糊 8px，和星空粒子柔光呼应 动态流光扫字：横向渐变光带，缓慢左右循环划过文字，低速不抢粒子风头 轻微悬浮位移：页面滚动时标题缓慢上下微动，和背景粒子形成层次差 搭配装饰（极简，不遮挡粒子） 标题上下各一条短渐变分割线，长度为标题宽度 70%，透明度 0.4，垂直间距 24px 2. 副标：AI 加油站 字号：32px，字重 Medium 颜色：浅紫 #e0c4ff 排版：居中，放在 AI STATION 正下方，间距 20px 细节：低透明度 0.85，作为英文主标题的中文注解 3. 双层 Slogan（强化站点定位） 第一行（重点）：赋能落地 AI 工程实践 第二行（弱化）：只分享可直接复用的实操笔记 字号：18px / 16px 颜色：浅灰白 #d8d8e8 行间距：10px，整体和上方中文副标间距 36px 4. 三列横向价值标签（居中均分，轻量化无背景块） 横向均匀分布，每个单元：线性极简图标 + 短句 🛠️ 100% 亲测实用技巧 💻 助攻文案/制表/做图 📒 避坑指南随查随用 字号：14px，颜色 #c9b0f2 图标线条粗细统一，尺寸 18px，和文字垂直居中对齐 单元之间用极细淡紫竖线分隔，透明度 0.3 和上方 Slogan 间距 32px 5. 补充说明小字 原文案：这里只分享真正有用的 AI 实操笔记 字号：13px，浅灰 #b0a8c2，透明度 0.7 居中排版，和标签行间距 28px 6. Start 按钮优化（匹配新标题科技感） 原有紫色椭圆保留，微调升级： 背景渐变 #aa44f0 → #9022dd 文字白色加粗，字号 16px 按钮外层添加微弱脉冲发光动画（淡紫光缓慢缩放呼吸） 按钮和上方说明小字间距 40px 三、背景粒子联动特效方案（重点，你原有粒子保留） 分层粒子逻辑，区分层级，不杂乱 底层：原有全屏稀疏星空粒子（黑白淡紫，慢速漂浮，不变动） 中层：AI STATION 标题专属环绕粒子 在大字外围一圈细密微型淡紫色粒子，环绕缓慢旋转，只围绕文字区域，强化视觉聚焦，不会铺满全屏干扰 顶层：流光文字动效、按钮脉冲光（静态装饰层） 加载入场动画顺序（页面打开依次浮现，流畅有节奏） 底层星空粒子先淡入 AI STATION 大字从上往下滑入 + 渐显，同步开启流光扫字 中文副标、slogan、标签依次延迟上浮出现 最后 Start 按钮脉冲光激活，引导点击 四、空间与留白规范（整体居中区块宽度约束） 桌面端：整个文字内容最大宽度 720px，整体页面水平居中 上下留白：顶部距离导航栏 140px，底部距离页面底部 120px 所有文字块垂直间距严格分层，大间距分割模块，小间距区分同行文字，避免拥挤 可选加分：整个文字容器加一层极低透明度（0.06）的深色圆角蒙版，半透明不遮挡粒子，大幅提升深色背景下文字可读性 五、完整色值统一规范（全站只用这套，无杂色） 表格 用途 色值 纯白主文字 #ffffff 品牌渐变紫（LOGO/STATION 文字） #c888ff ~ #9933ee 浅紫辅助文字 #e0c4ff / #c9b0f2 灰白次要文案 #d8d8e8 浅灰弱化小字 #b0a8c2 发光光晕 RGBA rgba(160, 70, 255, 0.25~0.35) 背景底色 #0f051a"
+                  - link "全栈项目文案设计优化" [ref=e753] [cursor=pointer]:
+                    - /url: /app/7378a0774a1b8a14
+                    - generic [ref=e757]: 全栈项目文案设计优化
+                  - link "我有一个想法，中间放大字 “AI STATSION” 然后你给我出一个完整的方案" [ref=e759] [cursor=pointer]:
+                    - /url: /app/4a62b05187911cc1
+                    - generic [ref=e763]: 我有一个想法，中间放大字 “AI STATSION” 然后你给我出一个完整的方案
+                  - link "动效重构：节点交互与视觉反馈" [ref=e765] [cursor=pointer]:
+                    - /url: /app/68589834a9aee578
+                    - generic [ref=e769]: 动效重构：节点交互与视觉反馈
+                  - link "动效完全体：神经网络分类布局" [ref=e771] [cursor=pointer]:
+                    - /url: /app/bf651f35d5f44ed0
+                    - generic [ref=e775]: 动效完全体：神经网络分类布局
+                  - link "3D 球体分类文字动效升级" [ref=e777] [cursor=pointer]:
+                    - /url: /app/d5ae66e3d041273c
+                    - generic [ref=e781]: 3D 球体分类文字动效升级
+                  - link "3D 粒子星图分类系统重构" [ref=e783] [cursor=pointer]:
+                    - /url: /app/5de8b679c2bbe82a
+                    - generic [ref=e787]: 3D 粒子星图分类系统重构
+                  - link "赛博朋克风格文章分类设计" [ref=e789] [cursor=pointer]:
+                    - /url: /app/f390179efd0fa2ad
+                    - generic [ref=e793]: 赛博朋克风格文章分类设计
+                  - link "粒子动画定位与性能优化" [ref=e795] [cursor=pointer]:
+                    - /url: /app/9f965b64bebd279e
+                    - generic [ref=e799]: 粒子动画定位与性能优化
+                  - link "紫色霓虹配色方案更新" [ref=e801] [cursor=pointer]:
+                    - /url: /app/cd4deacb5386e9ad
+                    - generic [ref=e805]: 紫色霓虹配色方案更新
+                  - link "粒子动画卡顿修复方案" [ref=e807] [cursor=pointer]:
+                    - /url: /app/346fe9db5d4b06fc
+                    - generic [ref=e811]: 粒子动画卡顿修复方案
+                  - link "粒子动画过渡优化方案" [ref=e813] [cursor=pointer]:
+                    - /url: /app/3f0884c362d2cd83
+                    - generic [ref=e817]: 粒子动画过渡优化方案
+                  - link "视频制作需升级订阅" [ref=e819] [cursor=pointer]:
+                    - /url: /app/e6d1af720ecdd937
+                    - generic [ref=e823]: 视频制作需升级订阅
+                  - link "响应式博客设计优化方案" [ref=e825] [cursor=pointer]:
+                    - /url: /app/f811ff1a2cc05c5f
+                    - generic [ref=e829]: 响应式博客设计优化方案
+                  - link "设计素材递归查看软件推荐" [ref=e831] [cursor=pointer]:
+                    - /url: /app/772919d49210eff9
+                    - generic [ref=e835]: 设计素材递归查看软件推荐
+                  - link "设计库同步维护方案推荐" [ref=e837] [cursor=pointer]:
+                    - /url: /app/8f92e1d03959e6b3
+                    - generic [ref=e841]: 设计库同步维护方案推荐
+                  - link "提升审美与设计能力建议" [ref=e843] [cursor=pointer]:
+                    - /url: /app/1f98883aac9a9a59
+                    - generic [ref=e847]: 提升审美与设计能力建议
+                  - link "婚恋工作双城生活规划" [ref=e849] [cursor=pointer]:
+                    - /url: /app/13650e270c559035
+                    - generic [ref=e853]: 婚恋工作双城生活规划
+                  - link "构建你的 I-D-E-A 思维框架" [ref=e855] [cursor=pointer]:
+                    - /url: /app/0e580cb9c8983b1b
+                    - generic [ref=e859]: 构建你的 I-D-E-A 思维框架
+                  - link "Git Proxy Connection Errors and Fixes" [ref=e861] [cursor=pointer]:
+                    - /url: /app/9ef6e8bd4198ceb9
+                    - generic [ref=e865]: Git Proxy Connection Errors and Fixes
+                  - link "Clash 本地直连规则配置" [ref=e867] [cursor=pointer]:
+                    - /url: /app/def38e37c30644c0
+                    - generic [ref=e871]: Clash 本地直连规则配置
+                  - link "Python 403 错误解决方案" [ref=e873] [cursor=pointer]:
+                    - /url: /app/224975578cdcf718
+                    - generic [ref=e877]: Python 403 错误解决方案
+                  - 'link "Vibe Coding: AI-Assisted App Development" [ref=e879] [cursor=pointer]':
+                    - /url: /app/823656bea8c97573
+                    - generic [ref=e883]: "Vibe Coding: AI-Assisted App Development"
+                  - link "AI 辅助全栈项目 PPT 设计" [ref=e885] [cursor=pointer]:
+                    - /url: /app/33b964ddcd6fd290
+                    - generic [ref=e889]: AI 辅助全栈项目 PPT 设计
+                  - link "滑块验证绕过与自动化方法" [ref=e891] [cursor=pointer]:
+                    - /url: /app/d26aceeebd873b18
+                    - generic [ref=e895]: 滑块验证绕过与自动化方法
+                  - link "GitHub 链接无法访问，寻求帮助" [ref=e897] [cursor=pointer]:
+                    - /url: /app/05d5290f9b736e03
+                    - generic [ref=e901]: GitHub 链接无法访问，寻求帮助
+                  - link "Symbolica 2.0 发布公告" [ref=e903] [cursor=pointer]:
+                    - /url: /app/cbe1dbf933bf9a99
+                    - generic [ref=e907]: Symbolica 2.0 发布公告
+                  - link "AI 视频渲染新框架 HyperFrames" [ref=e909] [cursor=pointer]:
+                    - /url: /app/d92c4decfb19cf04
+                    - generic [ref=e913]: AI 视频渲染新框架 HyperFrames
+                  - link "VoxCPM 部署配置需求" [ref=e915] [cursor=pointer]:
+                    - /url: /app/9e6a18504039d46c
+                    - generic [ref=e919]: VoxCPM 部署配置需求
+                  - 'link "Harness Engineering: AI 软件开发新范式" [ref=e921] [cursor=pointer]':
+                    - /url: /app/61172f0e8ebd81e5
+                    - generic [ref=e925]: "Harness Engineering: AI 软件开发新范式"
+                  - link "AI网站SEO诊断与优化建议" [ref=e927] [cursor=pointer]:
+                    - /url: /app/eaca803d025fe861
+                    - generic [ref=e931]: AI网站SEO诊断与优化建议
+                  - link "Adobe AI 编码智能体技能库" [ref=e933] [cursor=pointer]:
+                    - /url: /app/5f5d26eff04d734e
+                    - generic [ref=e937]: Adobe AI 编码智能体技能库
+                  - link "AI 网站特色美化方案建议" [ref=e939] [cursor=pointer]:
+                    - /url: /app/594bee698d34e7dc
+                    - generic [ref=e943]: AI 网站特色美化方案建议
+                  - link "OpenClaw Windows AI 助理详解" [ref=e945] [cursor=pointer]:
+                    - /url: /app/14fbd5b2b1782bb9
+                    - generic [ref=e949]: OpenClaw Windows AI 助理详解
+                  - link "个人主页优化建议与代码" [ref=e951] [cursor=pointer]:
+                    - /url: /app/df210931acc03d02
+                    - generic [ref=e955]: 个人主页优化建议与代码
+                  - link "网站SEO优化检查指南" [ref=e957] [cursor=pointer]:
+                    - /url: /app/9a538eb95f1384a8
+                    - generic [ref=e961]: 网站SEO优化检查指南
+                  - link "网站SEO优化评估指南" [ref=e963] [cursor=pointer]:
+                    - /url: /app/3b1e702b82ee2883
+                    - generic [ref=e967]: 网站SEO优化评估指南
+                  - link "Gemini Notebooks 功能详解" [ref=e969] [cursor=pointer]:
+                    - /url: /app/d0db666bd9fc7343
+                    - generic [ref=e973]: Gemini Notebooks 功能详解
+                  - link "Codex Harness 的含义与应用" [ref=e975] [cursor=pointer]:
+                    - /url: /app/6fed26e842c7e307
+                    - generic [ref=e979]: Codex Harness 的含义与应用
+                  - link "OpenClaw Workboard 插件介绍" [ref=e981] [cursor=pointer]:
+                    - /url: /app/142c51a21aa38619
+                    - generic [ref=e985]: OpenClaw Workboard 插件介绍
+                  - link "EACCES 权限 denied 端口问题" [ref=e987] [cursor=pointer]:
+                    - /url: /app/83953c87391cb2de
+                    - generic [ref=e991]: EACCES 权限 denied 端口问题
+                  - link "OpenClaw Skill Workshop 详解" [ref=e993] [cursor=pointer]:
+                    - /url: /app/fe2a0f42feedfbf8
+                    - generic [ref=e997]: OpenClaw Skill Workshop 详解
+                  - link "OpenClaw v2026.6.1 更新概览" [ref=e999] [cursor=pointer]:
+                    - /url: /app/25a7f90e880f792d
+                    - generic [ref=e1003]: OpenClaw v2026.6.1 更新概览
+                  - link "个人站点优化建议" [ref=e1005] [cursor=pointer]:
+                    - /url: /app/03a5b96162208688
+                    - generic [ref=e1009]: 个人站点优化建议
+                  - link "后端接口文档优化建议" [ref=e1011] [cursor=pointer]:
+                    - /url: /app/01e927b69522fdce
+                    - generic [ref=e1015]: 后端接口文档优化建议
+                  - link "API 文档梳理与规范" [ref=e1017] [cursor=pointer]:
+                    - /url: /app/5cae5ef17b62783b
+                    - generic [ref=e1021]: API 文档梳理与规范
+                  - link "功能清单完善与补充建议" [ref=e1023] [cursor=pointer]:
+                    - /url: /app/8941de18cb2d7134
+                    - generic [ref=e1027]: 功能清单完善与补充建议
+                  - link "文档评审与接口梳理建议" [ref=e1029] [cursor=pointer]:
+                    - /url: /app/7ebbabec3e435bed
+                    - generic [ref=e1033]: 文档评审与接口梳理建议
+                  - link "AI 加油站开发计划优化" [ref=e1035] [cursor=pointer]:
+                    - /url: /app/171e9414a0ffdf9f
+                    - generic [ref=e1039]: AI 加油站开发计划优化
+                  - link "AI 加油站开发计划优化" [ref=e1041] [cursor=pointer]:
+                    - /url: /app/1cd4488d229256f8
+                    - generic [ref=e1045]: AI 加油站开发计划优化
+                  - link "个人站点开发计划优化建议" [ref=e1047] [cursor=pointer]:
+                    - /url: /app/af9a1ed3c59556ec
+                    - generic [ref=e1051]: 个人站点开发计划优化建议
+                  - link "AI 会员社区项目概况总结" [ref=e1053] [cursor=pointer]:
+                    - /url: /app/f97ef93cf296c76d
+                    - generic [ref=e1057]: AI 会员社区项目概况总结
+                  - link "AI 加油站开发方案评审" [ref=e1059] [cursor=pointer]:
+                    - /url: /app/903b16151b007e25
+                    - generic [ref=e1063]: AI 加油站开发方案评审
+                  - link "AI加油站开发方案更新" [ref=e1065] [cursor=pointer]:
+                    - /url: /app/71b6f0da16da2717
+                    - generic [ref=e1069]: AI加油站开发方案更新
+                  - link "Vibe Coding 建站方案优化" [ref=e1071] [cursor=pointer]:
+                    - /url: /app/b3b43a50c253227a
+                    - generic [ref=e1075]: Vibe Coding 建站方案优化
+                  - link "Vibe Coding 技术栈选择建议" [ref=e1077] [cursor=pointer]:
+                    - /url: /app/8322e04442dfe237
+                    - generic [ref=e1081]: Vibe Coding 技术栈选择建议
+                  - link "AI 加油站开发计划与方案" [ref=e1083] [cursor=pointer]:
+                    - /url: /app/70b43509825f37eb
+                    - generic [ref=e1087]: AI 加油站开发计划与方案
+                  - link "AI 社区方案优化建议" [ref=e1089] [cursor=pointer]:
+                    - /url: /app/774d8e2855473a41
+                    - generic [ref=e1093]: AI 社区方案优化建议
+                  - link "AI 会员社区开发方案讨论" [ref=e1095] [cursor=pointer]:
+                    - /url: /app/74b016e12fb4795c
+                    - generic [ref=e1099]: AI 会员社区开发方案讨论
+                  - link "知识付费站点建设建议" [ref=e1101] [cursor=pointer]:
+                    - /url: /app/2e862bcb74138b25
+                    - generic [ref=e1105]: 知识付费站点建设建议
+                  - link "知识库重构方案优化建议" [ref=e1107] [cursor=pointer]:
+                    - /url: /app/eb66022ec20525d4
+                    - generic [ref=e1111]: 知识库重构方案优化建议
+                  - link "知识库重构工作流方案" [ref=e1113] [cursor=pointer]:
+                    - /url: /app/d5bc70c6bb29a073
+                    - generic [ref=e1117]: 知识库重构工作流方案
+                  - link "知识库重构工作流与SOP" [ref=e1119] [cursor=pointer]:
+                    - /url: /app/66da85a1a09bd6dd
+                    - generic [ref=e1123]: 知识库重构工作流与SOP
+                  - link "电脑散热风扇控制软件推荐" [ref=e1125] [cursor=pointer]:
+                    - /url: /app/3f55a3b79bcb0c81
+                    - generic [ref=e1129]: 电脑散热风扇控制软件推荐
+                  - link "GitHub Raw 文件服务详解" [ref=e1131] [cursor=pointer]:
+                    - /url: /app/56c1a86535b630c9
+                    - generic [ref=e1135]: GitHub Raw 文件服务详解
+                  - link "Typora 布局：文件树与大纲并存" [ref=e1137] [cursor=pointer]:
+                    - /url: /app/1d48e64821643a51
+                    - generic [ref=e1141]: Typora 布局：文件树与大纲并存
+                  - 'link "Manus AI: 优势与特点分析" [ref=e1143] [cursor=pointer]':
+                    - /url: /app/0058f763382389f6
+                    - generic [ref=e1147]: "Manus AI: 优势与特点分析"
+                  - 'link "Lovart AI: AI 设计智能体优势" [ref=e1149] [cursor=pointer]':
+                    - /url: /app/2a28526bf37f0630
+                    - generic [ref=e1153]: "Lovart AI: AI 设计智能体优势"
+                  - link "NotebookLM vs Obsidian vs IMA" [ref=e1155] [cursor=pointer]:
+                    - /url: /app/14b78fb7d1b70231
+                    - generic [ref=e1159]: NotebookLM vs Obsidian vs IMA
+                  - link "Clash 终端不走代理解决办法" [ref=e1161] [cursor=pointer]:
+                    - /url: /app/9b40d88f1ba29627
+                    - generic [ref=e1165]: Clash 终端不走代理解决办法
+                  - link "Clash 配置 Hermes 走代理" [ref=e1167] [cursor=pointer]:
+                    - /url: /app/25144419ef00c336
+                    - generic [ref=e1171]: Clash 配置 Hermes 走代理
+                  - link "Clash 规则不生效的修复" [ref=e1173] [cursor=pointer]:
+                    - /url: /app/1a7a3b4627473d4a
+                    - generic [ref=e1177]: Clash 规则不生效的修复
+                  - link "Clash 扩展覆写配置指南" [ref=e1179] [cursor=pointer]:
+                    - /url: /app/5c6fab6d73dc7087
+                    - generic [ref=e1183]: Clash 扩展覆写配置指南
+                  - link "Windows 11 AI 搜索功能介绍" [ref=e1185] [cursor=pointer]:
+                    - /url: /app/5014ea253ae20f17
+                    - generic [ref=e1189]: Windows 11 AI 搜索功能介绍
+                  - link "小米 SU7 发布会内容总结" [ref=e1191] [cursor=pointer]:
+                    - /url: /app/112a93ca12993a08
+                    - generic [ref=e1195]: 小米 SU7 发布会内容总结
+                  - link "本地语音转文字方案推荐" [ref=e1197] [cursor=pointer]:
+                    - /url: /app/868c30de39411e29
+                    - generic [ref=e1201]: 本地语音转文字方案推荐
+                  - link "搬瓦工开放8080端口教程" [ref=e1203] [cursor=pointer]:
+                    - /url: /app/c0e9818d6ba623bc
+                    - generic [ref=e1207]: 搬瓦工开放8080端口教程
+                  - link "国际学校家长反馈润色" [ref=e1209] [cursor=pointer]:
+                    - /url: /app/759a8645771301cd
+                    - generic [ref=e1213]: 国际学校家长反馈润色
+                  - link "润色学生课程反馈初稿" [ref=e1215] [cursor=pointer]:
+                    - /url: /app/6cd9d028952959ae
+                    - generic [ref=e1219]: 润色学生课程反馈初稿
+                  - link "Python 贪吃蛇实现与笔记生成" [ref=e1221] [cursor=pointer]:
+                    - /url: /app/4aa411e0ef2888bd
+                    - generic [ref=e1225]: Python 贪吃蛇实现与笔记生成
+                  - link "学生反馈润色与优化" [ref=e1227] [cursor=pointer]:
+                    - /url: /app/de16e5c378927469
+                    - generic [ref=e1231]: 学生反馈润色与优化
+                  - link "两位同学Python课程反馈" [ref=e1233] [cursor=pointer]:
+                    - /url: /app/0dcd52faf13c07d1
+                    - generic [ref=e1237]: 两位同学Python课程反馈
+                  - link "暗调水墨国风头像，少年独行背影，夜色淡墨底色，朦胧月色微光，冷调墨黑+灰蓝配色，极简线条，氛围感沉静内敛，写意山水背景，极简主义，高级冷淡风，画面干净简洁" [ref=e1239] [cursor=pointer]:
+                    - /url: /app/0c2c5fde78edc999
+                    - generic [ref=e1243]: 暗调水墨国风头像，少年独行背影，夜色淡墨底色，朦胧月色微光，冷调墨黑+灰蓝配色，极简线条，氛围感沉静内敛，写意山水背景，极简主义，高级冷淡风，画面干净简洁
+                  - link "浅色系水墨极简头像，温润清冷少年，浅墨勾勒轮廓，淡青、米白、浅灰柔和配色，极简写意，轻薄墨色晕染，干净干净通透，东方美学，简约文艺，低饱和度，柔和光影，极简留白，小众不撞款，国风手绘，正方形头像" [ref=e1245] [cursor=pointer]:
+                    - /url: /app/7675df2eef250693
+                    - generic [ref=e1249]: 浅色系水墨极简头像，温润清冷少年，浅墨勾勒轮廓，淡青、米白、浅灰柔和配色，极简写意，轻薄墨色晕染，干净干净通透，东方美学，简约文艺，低饱和度，柔和光影，极简留白，小众不撞款，国风手绘，正方形头像
+                  - link "水墨极简风头像，意象写意风格，不露脸，少年轮廓剪影，融入淡墨山水纹理，烟雨朦胧氛围感，墨黑、浅灰、青灰三色搭配，大面积留白，东方禅意，克制安静，书卷气，极简高级，哑光质感，简约干净，适合长期使用，国风极简插画，正方形" [ref=e1251] [cursor=pointer]:
+                    - /url: /app/92f9403a71fd098f
+                    - generic [ref=e1255]: 水墨极简风头像，意象写意风格，不露脸，少年轮廓剪影，融入淡墨山水纹理，烟雨朦胧氛围感，墨黑、浅灰、青灰三色搭配，大面积留白，东方禅意，克制安静，书卷气，极简高级，哑光质感，简约干净，适合长期使用，国风极简插画，正方形
+                  - link "现实图片非现实设计灵感" [ref=e1257] [cursor=pointer]:
+                    - /url: /app/4e8c7e136367469d
+                    - generic [ref=e1261]: 现实图片非现实设计灵感
+                  - link "照片转柯南动漫风格" [ref=e1263] [cursor=pointer]:
+                    - /url: /app/3c48b8f633626fae
+                    - generic [ref=e1267]: 照片转柯南动漫风格
+                  - link "学生反馈润色与改进建议" [ref=e1269] [cursor=pointer]:
+                    - /url: /app/70634e3b4c2e665e
+                    - generic [ref=e1273]: 学生反馈润色与改进建议
+                  - link "润色学生课堂表现反馈" [ref=e1275] [cursor=pointer]:
+                    - /url: /app/f98935a9772b29cb
+                    - generic [ref=e1279]: 润色学生课堂表现反馈
+                  - link "润色学生编程课反馈" [ref=e1281] [cursor=pointer]:
+                    - /url: /app/1d41a0ea6c629f2d
+                    - generic [ref=e1285]: 润色学生编程课反馈
+                  - link "Kevin 学习反馈与建议" [ref=e1287] [cursor=pointer]:
+                    - /url: /app/f351f09d64b20cf6
+                    - generic [ref=e1291]: Kevin 学习反馈与建议
+                  - link "累加和大于1000的最小n" [ref=e1293] [cursor=pointer]:
+                    - /url: /app/46e3d8b7b1619e13
+                    - generic [ref=e1297]: 累加和大于1000的最小n
+                  - link "Keep the character's appearance and pose unchanged, watercolor painting style, transparent watercolor blending, soft diffused colors, wet-on-wet technique, delicate brushstrokes, gentle light and shadow, fresh and healing atmosphere, artistic blank space, elegant muted tones, layered textures, creative artistic illustration, high detail, aesthetic feeling" [ref=e1299] [cursor=pointer]:
+                    - /url: /app/dedb377753767ed7
+                    - generic [ref=e1303]: Keep the character's appearance and pose unchanged, watercolor painting style, transparent watercolor blending, soft diffused colors, wet-on-wet technique, delicate brushstrokes, gentle light and shadow, fresh and healing atmosphere, artistic blank space, elegant muted tones, layered textures, creative artistic illustration, high detail, aesthetic feeling
+                  - link "课程反馈润色与内容总结" [ref=e1305] [cursor=pointer]:
+                    - /url: /app/54c12cb475a47be7
+                    - generic [ref=e1309]: 课程反馈润色与内容总结
+                  - link "润色学生课堂表现反馈" [ref=e1311] [cursor=pointer]:
+                    - /url: /app/976085fea43434b9
+                    - generic [ref=e1315]: 润色学生课堂表现反馈
+                  - link "Thomas 课堂表现与学习习惯" [ref=e1317] [cursor=pointer]:
+                    - /url: /app/73368b2ab7a69e0d
+                    - generic [ref=e1321]: Thomas 课堂表现与学习习惯
+                  - link "Student Feedback Refinement" [ref=e1323] [cursor=pointer]:
+                    - /url: /app/98cec8a954011bd2
+                    - generic [ref=e1327]: Student Feedback Refinement
+                  - link "帮我生成一个mc方块的纹理，是一个蓝色的闪耀方块" [ref=e1329] [cursor=pointer]:
+                    - /url: /app/02facac6925547da
+                    - generic [ref=e1333]: 帮我生成一个mc方块的纹理，是一个蓝色的闪耀方块
+                  - link "学生反馈整理与点评" [ref=e1335] [cursor=pointer]:
+                    - /url: /app/42d39d5fbee48478
+                    - generic [ref=e1339]: 学生反馈整理与点评
+                  - link "Q 版圆滚滚小龙虾拟人，超可爱胖乎乎圆润身体，亮红色小龙虾，搞怪活泼技术宅形象，不古板严肃，戴着潮流小眼镜，背着卡通工具包，一手拿螺丝刀一手举笔记本电脑，元气满满做技术支持、上门安装服务，渐变蓝紫科技背景，不纯白，高饱和撞色，醒目大标题文字突出，扁平商业插画，电商商品封面，居中构图，高清精致，色彩鲜艳吸睛，专业又萌趣，适合闲鱼 / 小红书 / 抖音主图，赛博朋克分割" [ref=e1341] [cursor=pointer]:
+                    - /url: /app/4ec27229222351df
+                    - generic [ref=e1345]: Q 版圆滚滚小龙虾拟人，超可爱胖乎乎圆润身体，亮红色小龙虾，搞怪活泼技术宅形象，不古板严肃，戴着潮流小眼镜，背着卡通工具包，一手拿螺丝刀一手举笔记本电脑，元气满满做技术支持、上门安装服务，渐变蓝紫科技背景，不纯白，高饱和撞色，醒目大标题文字突出，扁平商业插画，电商商品封面，居中构图，高清精致，色彩鲜艳吸睛，专业又萌趣，适合闲鱼 / 小红书 / 抖音主图，赛博朋克分割
+                  - link "Student Feedback Polishing Service" [ref=e1347] [cursor=pointer]:
+                    - /url: /app/c2368dac2f6c17ec
+                    - generic [ref=e1351]: Student Feedback Polishing Service
+                  - link "Minecraft 编程挑战：雷达与守卫" [ref=e1353] [cursor=pointer]:
+                    - /url: /app/e2427a3e9204fb8d
+                    - generic [ref=e1357]: Minecraft 编程挑战：雷达与守卫
+                  - link "学生课堂表现反馈总结" [ref=e1359] [cursor=pointer]:
+                    - /url: /app/9ff4b6192ef873a0
+                    - generic [ref=e1363]: 学生课堂表现反馈总结
+                  - link "OpenClaw 一键启动脚本指南" [ref=e1365] [cursor=pointer]:
+                    - /url: /app/020b686725010f4d
+                    - generic [ref=e1369]: OpenClaw 一键启动脚本指南
+                  - link "创意小龙虾技术支持商品图" [ref=e1371] [cursor=pointer]:
+                    - /url: /app/6f809c5a481c6507
+                    - generic [ref=e1375]: 创意小龙虾技术支持商品图
+                  - link "学生反馈润色与建议" [ref=e1377] [cursor=pointer]:
+                    - /url: /app/678ea128ac606d2c
+                    - generic [ref=e1381]: 学生反馈润色与建议
+                  - link "Python 标志位与集合练习" [ref=e1383] [cursor=pointer]:
+                    - /url: /app/2b49e2767dcd4a02
+                    - generic [ref=e1387]: Python 标志位与集合练习
+                  - link "教师反馈润色与建议" [ref=e1389] [cursor=pointer]:
+                    - /url: /app/67c2a35310cb030e
+                    - generic [ref=e1393]: 教师反馈润色与建议
+                  - link "VPN 订阅链接安全部署方案" [ref=e1395] [cursor=pointer]:
+                    - /url: /app/dd5503202e16b4a8
+                    - generic [ref=e1399]: VPN 订阅链接安全部署方案
+                  - link "Python 列表偶数计数练习" [ref=e1401] [cursor=pointer]:
+                    - /url: /app/bef6f80f54360a95
+                    - generic [ref=e1405]: Python 列表偶数计数练习
+                  - link "修改参考图，生成一张科技感技术服务宣传图，风格简洁干净、年轻有趣，背景是淡蓝色科技感界面，把中间的小龙虾表情自信专业，正在电脑前调试代码，画面右侧加醒目加粗亮黄色大字“专业、靠谱”，整体风格清爽、有信任感、适合做技术服务商品封面，高清，细节丰富" [ref=e1407] [cursor=pointer]:
+                    - /url: /app/68629e3f58e61f0e
+                    - generic [ref=e1411]: 修改参考图，生成一张科技感技术服务宣传图，风格简洁干净、年轻有趣，背景是淡蓝色科技感界面，把中间的小龙虾表情自信专业，正在电脑前调试代码，画面右侧加醒目加粗亮黄色大字“专业、靠谱”，整体风格清爽、有信任感、适合做技术服务商品封面，高清，细节丰富
+                  - link "计算机课学生反馈润色" [ref=e1413] [cursor=pointer]:
+                    - /url: /app/fe61df06a85706d2
+                    - generic [ref=e1417]: 计算机课学生反馈润色
+                  - link "MC 编程挑战：怪物探测器" [ref=e1419] [cursor=pointer]:
+                    - /url: /app/778d758026c3ec38
+                    - generic [ref=e1423]: MC 编程挑战：怪物探测器
+                  - link "把屏幕中的卡通人物换成相同风格的小龙虾" [ref=e1425] [cursor=pointer]:
+                    - /url: /app/dd247f2dc346c383
+                    - generic [ref=e1429]: 把屏幕中的卡通人物换成相同风格的小龙虾
+                  - link "Student Feedback Summary and Refinement" [ref=e1431] [cursor=pointer]:
+                    - /url: /app/199dd6776293f547
+                    - generic [ref=e1435]: Student Feedback Summary and Refinement
+                  - link "AI 社区宣传图设计" [ref=e1437] [cursor=pointer]:
+                    - /url: /app/0c7a570338c956a6
+                    - generic [ref=e1441]: AI 社区宣传图设计
+                  - link "升级订阅才能生成封面" [ref=e1443] [cursor=pointer]:
+                    - /url: /app/b17d7c2916f0beed
+                    - generic [ref=e1447]: 升级订阅才能生成封面
+                  - 'link "Dictionary Update: Dragon Egg Drop" [ref=e1449] [cursor=pointer]':
+                    - /url: /app/a9e39b172c5f0af2
+                    - generic [ref=e1453]: "Dictionary Update: Dragon Egg Drop"
+            - group [ref=e40]:
+              - generic [ref=e42]:
+                - 'link "Google Account: Jim Free (a1020151695@gmail.com)" [ref=e198] [cursor=pointer]':
+                  - /url: https://accounts.google.com/SignOutOptions?continue=https://gemini.google.com
+                  - img [ref=e199]
+                  - generic [ref=e201]: Jim Free
+                - button "Settings" [ref=e47] [cursor=pointer]:
+                  - img [ref=e49]: settings
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "Conversation with Gemini" [level=1] [ref=e59]
+          - generic [ref=e1454]:
+            - generic [ref=e1458]:
+              - heading "You said \"hi\"\"hi\"\"hi\"" [level=2] [ref=e1462]:
+                - generic [ref=e1463]: You said
+                - paragraph [ref=e1464]: "\"hi\"\"hi\"\"hi\""
+              - generic [ref=e1465]:
+                - button "Copy prompt" [ref=e1467] [cursor=pointer]:
+                  - img [ref=e1469]: copy
+                - button "Edit" [ref=e1472] [cursor=pointer]:
+                  - img [ref=e1474]: edit
+            - generic [ref=e1479]:
+              - generic [ref=e1482]:
+                - heading "Gemini said" [level=2] [ref=e1483]
+                - generic [ref=e1487]:
+                  - paragraph [ref=e1488]: Hi there! Hi there! Hi there!
+                  - paragraph [ref=e1489]: What's on your mind today?
+              - generic [ref=e1493]:
+                - button "Good response" [ref=e1496] [cursor=pointer]:
+                  - img [ref=e1498]: thumb_up
+                - button "Bad response" [ref=e1502] [cursor=pointer]:
+                  - img [ref=e1504]: thumb_down
+                - button "Redo" [ref=e1509] [cursor=pointer]:
+                  - img [ref=e1511]: refresh
+                - button "Copy" [ref=e1515] [cursor=pointer]:
+                  - img [ref=e1517]: copy
+                - button "Show more options" [ref=e1523] [cursor=pointer]:
+                  - img [ref=e1525]: more_horiz
+        - generic [ref=e71]:
+          - group [ref=e72]:
+            - generic [ref=e75]:
+              - textbox "Enter a prompt for Gemini" [ref=e209]:
+                - paragraph [ref=e227]: "\"hi\""
+              - button "Upload & tools" [ref=e88] [cursor=pointer]:
+                - img [ref=e90]: plus
+              - generic [ref=e92]:
+                - group [ref=e212]:
+                  - button "Open mode picker, currently Flash" [ref=e213]:
+                    - generic [ref=e215]:
+                      - generic [ref=e216]: Flash
+                      - img [ref=e218]: keyboard_arrow_down
+                - generic [ref=e94]:
+                  - button "Microphone" [ref=e99] [cursor=pointer]:
+                    - img [ref=e101]: mic
+                  - button "Send message" [active] [ref=e236] [cursor=pointer]:
+                    - img [ref=e225]: arrow_upward
+          - paragraph [ref=e229]: Gemini is AI and can make mistakes.
+  - generic [ref=e1530]: Submit

@@ -1,0 +1,83 @@
+- main [ref=e9]:
+  - generic [ref=e11]:
+    - link "New chat" [ref=e12] [cursor=pointer]:
+      - /url: /
+      - img [ref=e14]
+      - generic [ref=e15]: Gemini
+    - text: side_nav_expand
+  - generic [ref=e18]:
+    - link "Upgrade" [ref=e21]:
+      - generic [ref=e22]:
+        - img [ref=e23]: spark
+        - generic [ref=e24]: Upgrade
+    - generic [ref=e27]:
+      - generic: play_arrow
+      - button "Temporary chat" [ref=e31] [cursor=pointer]:
+        - img [ref=e33]: gemini_chat_temp
+  - generic [ref=e36]:
+    - navigation "Side Navigation" [ref=e37]:
+      - generic [ref=e39]:
+        - button "Close sidebar" [ref=e40] [cursor=pointer]:
+          - img [ref=e42]: side_nav
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - navigation "Main actions menu" [ref=e47]:
+              - link "New chat" [ref=e49] [cursor=pointer]:
+                - /url: /app
+                - img [ref=e52]: gemini_chat
+                - generic [ref=e56]: New chat
+              - link "Search chats" [ref=e58] [cursor=pointer]:
+                - /url: /search
+                - img [ref=e61]: search
+                - generic [ref=e65]: Search chats
+            - text: image_create library gems
+          - generic [ref=e66]:
+            - navigation "Additional actions menu" [ref=e67]:
+              - link "Images" [ref=e69] [cursor=pointer]:
+                - /url: /images
+                - img [ref=e72]: image_create
+                - generic [ref=e76]: Images
+              - link "Library" [ref=e78] [cursor=pointer]:
+                - /url: library
+                - img [ref=e81]: library
+                - generic [ref=e85]: Library
+              - link "Gems" [ref=e87] [cursor=pointer]:
+                - /url: /gems/view
+                - img [ref=e90]: gems
+                - generic [ref=e94]: Gems
+            - progressbar "Loading Gems and Recent conversations" [ref=e96]:
+              - img [ref=e98]
+              - generic [ref=e101]:
+                - img [ref=e103]
+                - img [ref=e106]
+                - img [ref=e109]
+          - group [ref=e111]:
+            - generic [ref=e113]:
+              - 'link "Google Account: Jim Free (a1020151695@gmail.com)" [ref=e114] [cursor=pointer]':
+                - /url: https://accounts.google.com/SignOutOptions?continue=https://gemini.google.com
+                - img [ref=e116]
+                - generic [ref=e118]: Jim Free
+              - button "Settings" [ref=e120] [cursor=pointer]:
+                - img [ref=e122]: settings
+    - generic [ref=e131]:
+      - generic [ref=e132]:
+        - heading "Conversation with Gemini" [level=1] [ref=e133]
+        - heading "Any new ideas to explore?" [level=1] [ref=e147]:
+          - generic [ref=e148]: Any new ideas to explore?
+      - generic [ref=e150]:
+        - group [ref=e151]:
+          - generic [ref=e154]:
+            - textbox "Enter a prompt for Gemini" [active] [ref=e160]:
+              - text: Ask Gemini
+              - paragraph [ref=e161]
+            - button "Upload & tools" [ref=e167] [cursor=pointer]:
+              - img [ref=e169]: plus
+            - generic [ref=e171]:
+              - group [ref=e174]:
+                - button "Open mode picker, currently Flash" [ref=e175]:
+                  - generic [ref=e177]:
+                    - generic [ref=e178]: Flash
+                    - img [ref=e180]: keyboard_arrow_down
+              - button "Microphone" [ref=e188] [cursor=pointer]:
+                - img [ref=e190]: mic
+        - paragraph [ref=e194]

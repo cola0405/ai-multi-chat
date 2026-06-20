@@ -1,0 +1,264 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - navigation [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e307] [cursor=pointer]:
+            - img [ref=e308]
+            - generic [ref=e310]: 搜索…
+            - generic [ref=e311]:
+              - generic [ref=e312]: Ctrl
+              - generic [ref=e313]: K
+          - link "豆包" [ref=e315]:
+            - /url: /chat/38431793552541698
+            - img [ref=e316]
+            - generic [ref=e319]: 豆包
+          - generic [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+            - generic [ref=e26]:
+              - generic [ref=e27]: 新对话
+              - generic [ref=e28]: Ctrl Shift K
+          - generic [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+            - generic [ref=e36]: 新办公任务
+          - generic [ref=e38]:
+            - generic [ref=e40]:
+              - link "发现智能体" [ref=e42] [cursor=pointer]:
+                - /url: /chat/bot/discover
+                - img [ref=e43]
+                - generic [ref=e47]: 发现智能体
+              - link "AI 创作" [ref=e49] [cursor=pointer]:
+                - /url: /chat/create-image
+                - img [ref=e50]
+                - generic [ref=e54]: AI 创作
+              - link "云盘" [ref=e56] [cursor=pointer]:
+                - /url: /chat/drive/?from=sidebar_ai_drive
+                - img [ref=e57]
+                - generic [ref=e61]: 云盘
+            - generic [ref=e320]:
+              - generic [ref=e322] [cursor=pointer]: 历史对话
+              - generic [ref=e323]:
+                - link "新对话" [ref=e583] [cursor=pointer]:
+                  - /url: /chat/38431793552541698
+                  - generic [ref=e585]:
+                    - img [ref=e587]
+                    - generic [ref=e589]: 新对话
+                - link "问候" [ref=e325] [cursor=pointer]:
+                  - /url: /chat/38431775172792578
+                  - generic [ref=e327]:
+                    - img [ref=e329]
+                    - generic [ref=e331]: 问候
+                - link "多AI聚合提问客户端方案建议" [ref=e333] [cursor=pointer]:
+                  - /url: /chat/38431791498201346
+                  - generic [ref=e335]:
+                    - img [ref=e337]
+                    - generic [ref=e339]: 多AI聚合提问客户端方案建议
+                - link "介绍豆包" [ref=e341] [cursor=pointer]:
+                  - /url: /chat/38431791468051458
+                  - generic [ref=e343]:
+                    - img [ref=e345]
+                    - generic [ref=e347]: 介绍豆包
+                - link "HTML性能优化（降低GPU占用）" [ref=e349] [cursor=pointer]:
+                  - /url: /chat/38431733874248706
+                  - generic [ref=e351]:
+                    - img [ref=e353]
+                    - generic [ref=e355]: HTML性能优化（降低GPU占用）
+                - link "HTML性能优化" [ref=e357] [cursor=pointer]:
+                  - /url: /chat/38431788665868290
+                  - generic [ref=e359]:
+                    - img [ref=e361]
+                    - generic [ref=e363]: HTML性能优化
+                - link "HTML动画性能优化" [ref=e365] [cursor=pointer]:
+                  - /url: /chat/38431770328097282
+                  - generic [ref=e367]:
+                    - img [ref=e369]
+                    - generic [ref=e371]: HTML动画性能优化
+                - link "HTML性能优化" [ref=e373] [cursor=pointer]:
+                  - /url: /chat/38431697199189250
+                  - generic [ref=e375]:
+                    - img [ref=e377]
+                    - generic [ref=e379]: HTML性能优化
+                - link "HTML动画性能优化" [ref=e381] [cursor=pointer]:
+                  - /url: /chat/38431788645772802
+                  - generic [ref=e383]:
+                    - img [ref=e385]
+                    - generic [ref=e387]: HTML动画性能优化
+                - link "调整粒子速度" [ref=e389] [cursor=pointer]:
+                  - /url: /chat/38431770174116354
+                  - generic [ref=e391]:
+                    - img [ref=e393]
+                    - generic [ref=e395]: 调整粒子速度
+                - link "浅色区域粒子动画优化" [ref=e397] [cursor=pointer]:
+                  - /url: /chat/38431456697796610
+                  - generic [ref=e399]:
+                    - img [ref=e401]
+                    - generic [ref=e403]: 浅色区域粒子动画优化
+                - link "浅色区域粒子动画优化" [ref=e405] [cursor=pointer]:
+                  - /url: /chat/38431696840686594
+                  - generic [ref=e407]:
+                    - img [ref=e409]
+                    - generic [ref=e411]: 浅色区域粒子动画优化
+                - link "AI Station界面几何装饰元素实现" [ref=e413] [cursor=pointer]:
+                  - /url: /chat/38431696775949826
+                  - generic [ref=e415]:
+                    - img [ref=e417]
+                    - generic [ref=e419]: AI Station界面几何装饰元素实现
+                - link "AI Station界面装饰元素实现" [ref=e421] [cursor=pointer]:
+                  - /url: /chat/38431733264693506
+                  - generic [ref=e423]:
+                    - img [ref=e425]
+                    - generic [ref=e427]: AI Station界面装饰元素实现
+                - link "界面右侧内容点缀方案" [ref=e429] [cursor=pointer]:
+                  - /url: /chat/38431493139288578
+                  - generic [ref=e431]:
+                    - img [ref=e433]
+                    - generic [ref=e435]: 界面右侧内容点缀方案
+                - link "添加全息科技底座动画效果" [ref=e437] [cursor=pointer]:
+                  - /url: /chat/38431493058278658
+                  - generic [ref=e439]:
+                    - img [ref=e441]
+                    - generic [ref=e443]: 添加全息科技底座动画效果
+                - link "绿色流光背景动画组件" [ref=e445] [cursor=pointer]:
+                  - /url: /chat/38431493060533250
+                  - generic [ref=e447]:
+                    - img [ref=e449]
+                    - generic [ref=e451]: 绿色流光背景动画组件
+                - link "底部斜向三层绿色流体流光动画（纯CSS实现）" [ref=e453] [cursor=pointer]:
+                  - /url: /chat/38431456237271554
+                  - generic [ref=e455]:
+                    - img [ref=e457]
+                    - generic [ref=e459]: 底部斜向三层绿色流体流光动画（纯CSS实现）
+                - link "网页绿色流光动画设计" [ref=e461] [cursor=pointer]:
+                  - /url: /chat/38431474573969154
+                  - generic [ref=e463]:
+                    - img [ref=e465]
+                    - generic [ref=e467]: 网页绿色流光动画设计
+                - link "博客阅读界面设计建议" [ref=e469] [cursor=pointer]:
+                  - /url: /chat/38431419059513346
+                  - generic [ref=e471]:
+                    - img [ref=e473]
+                    - generic [ref=e475]: 博客阅读界面设计建议
+                - link "10万定期存款3年本息计算" [ref=e477] [cursor=pointer]:
+                  - /url: /chat/38431473012783618
+                  - generic [ref=e479]:
+                    - img [ref=e481]
+                    - generic [ref=e483]: 10万定期存款3年本息计算
+                - link "主对话" [ref=e485] [cursor=pointer]:
+                  - /url: /chat/3942692772354
+                  - generic [ref=e487]:
+                    - img [ref=e489]
+                    - generic [ref=e491]: 主对话
+          - button "colaPro" [ref=e512]:
+            - generic [ref=e513] [cursor=pointer]:
+              - img [ref=e514]
+              - generic [ref=e516]:
+                - generic [ref=e517]: colaPro
+                - img [ref=e518]
+      - main [ref=e219]:
+        - generic [ref=e220]:
+          - generic [ref=e520]:
+            - generic [ref=e521]:
+              - button [ref=e522] [cursor=pointer]:
+                - img [ref=e524]
+              - button [ref=e590] [cursor=pointer]:
+                - img [ref=e592]
+            - generic [ref=e596]:
+              - generic [ref=e599] [cursor=pointer]: 新对话
+              - generic [ref=e602]: AI 生成可能有误 请核实
+            - generic [ref=e531]:
+              - button "开启自动播报" [ref=e532] [cursor=pointer]:
+                - img [ref=e534]
+              - button [ref=e603] [cursor=pointer]:
+                - img [ref=e605]
+          - generic [ref=e609]:
+            - generic "doc_editor" [ref=e610]:
+              - generic [ref=e611]:
+                - generic [ref=e614]:
+                  - generic:
+                    - generic:
+                      - generic [ref=e624]:
+                        - generic [ref=e628]: hi
+                        - generic [ref=e629]:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - img
+                                - button:
+                                  - generic:
+                                    - img
+                                - button:
+                                  - generic:
+                                    - img
+                      - generic [ref=e637]:
+                        - generic [ref=e645]: Hi! How are you doing today?
+                        - generic [ref=e649]:
+                          - button [ref=e650] [cursor=pointer]:
+                            - img [ref=e652]
+                          - button "朗读" [ref=e655] [cursor=pointer]:
+                            - img [ref=e658]
+                          - button [ref=e662] [cursor=pointer]:
+                            - img [ref=e664]
+                          - button [ref=e667] [cursor=pointer]:
+                            - img [ref=e669]
+                          - button [ref=e672] [cursor=pointer]:
+                            - img [ref=e674]
+                          - button [ref=e677] [cursor=pointer]:
+                            - img [ref=e679]
+                          - button [ref=e682]:
+                            - button [ref=e683] [cursor=pointer]:
+                              - img [ref=e685]
+                        - generic [ref=e689]:
+                          - generic [ref=e690] [cursor=pointer]:
+                            - generic [ref=e691]: What can you do?
+                            - img [ref=e692]:
+                              - img [ref=e693]
+                          - generic [ref=e695] [cursor=pointer]:
+                            - generic [ref=e696]: Who created you?
+                            - img [ref=e697]:
+                              - img [ref=e698]
+                          - generic [ref=e700] [cursor=pointer]:
+                            - generic [ref=e701]: Can you tell me a joke?
+                            - img [ref=e702]:
+                              - img [ref=e703]
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+            - generic [ref=e717]:
+              - generic [ref=e718]:
+                - generic [ref=e720]:
+                  - button [ref=e722] [cursor=pointer]:
+                    - img [ref=e724]
+                  - button "快速" [ref=e727]:
+                    - button "快速" [ref=e729] [cursor=pointer]:
+                      - img [ref=e730]
+                      - generic [ref=e733]:
+                        - text: 快速
+                        - img [ref=e734]
+                  - generic [ref=e739]:
+                    - button "编程" [ref=e740] [cursor=pointer]:
+                      - img [ref=e741]
+                      - generic [ref=e744]: 编程
+                    - button "帮我写作" [ref=e745] [cursor=pointer]:
+                      - img [ref=e746]
+                      - generic [ref=e749]: 帮我写作
+                    - button "图像生成" [ref=e750] [cursor=pointer]:
+                      - img [ref=e751]
+                      - generic [ref=e754]: 图像生成
+                    - button "视频生成" [ref=e755] [cursor=pointer]:
+                      - img [ref=e756]
+                      - generic [ref=e759]: 视频生成
+                    - button "PPT 生成" [ref=e760] [cursor=pointer]:
+                      - img [ref=e761]
+                      - generic [ref=e764]: PPT 生成
+                    - button "更多" [ref=e766] [cursor=pointer]:
+                      - img [ref=e767]
+                      - generic [ref=e769]: 更多
+                - img [ref=e775] [cursor=pointer]
+              - textbox "发消息或按住空格说话..." [active] [ref=e783]
+    - complementary
+  - region "Notifications alt+T"

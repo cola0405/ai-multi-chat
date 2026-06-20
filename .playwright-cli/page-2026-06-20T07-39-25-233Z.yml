@@ -1,0 +1,94 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - link "Home page" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img [ref=e10]
+      - generic [ref=e13]:
+        - list [ref=e15]:
+          - listitem [ref=e16]:
+            - button "Search" [ref=e17] [cursor=pointer]:
+              - img [ref=e21]
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link [ref=e29] [cursor=pointer]:
+              - /url: /
+              - img [ref=e33]
+        - list [ref=e42]:
+          - listitem [ref=e43]:
+            - link [ref=e44] [cursor=pointer]:
+              - /url: /imagine
+              - img [ref=e48]
+        - list [ref=e63]:
+          - listitem [ref=e64]:
+            - link [ref=e65] [cursor=pointer]:
+              - /url: /skills-and-connectors
+              - img [ref=e67]
+      - generic [ref=e71]:
+        - list [ref=e74]:
+          - listitem [ref=e75]:
+            - link [ref=e76] [cursor=pointer]:
+              - /url: /project
+              - img [ref=e80]
+        - list [ref=e90]:
+          - listitem [ref=e91]:
+            - button "History" [ref=e92] [cursor=pointer]:
+              - img [ref=e96]
+      - generic [ref=e109]:
+        - button "Toggle Sidebar" [ref=e112] [cursor=pointer]:
+          - img [ref=e113]
+          - generic [ref=e116]: Toggle Sidebar
+        - button "pfp" [ref=e119] [cursor=pointer]:
+          - img "pfp" [ref=e123]
+    - main [ref=e128]:
+      - generic [ref=e129]:
+        - link "Imagine" [ref=e131] [cursor=pointer]:
+          - /url: /imagine
+          - img [ref=e134]
+          - generic [ref=e148]: Imagine
+        - link "Switch to Private Chat" [ref=e150] [cursor=pointer]:
+          - /url: /c#private
+          - generic [ref=e151]:
+            - img [ref=e155]
+            - img [ref=e172]
+          - generic [ref=e180]: Private
+      - generic [ref=e182]:
+        - img [ref=e185]
+        - generic [ref=e193]:
+          - generic [ref=e198]:
+            - generic [ref=e200]:
+              - textbox "Ask Grok anything" [active] [ref=e202]:
+                - paragraph [ref=e203]
+              - generic:
+                - generic: What do you want to know?
+            - generic [ref=e205]:
+              - button "Attach" [ref=e207] [cursor=pointer]:
+                - img [ref=e209]
+              - generic [ref=e211]:
+                - button "Model select" [ref=e213] [cursor=pointer]:
+                  - generic [ref=e215]: Fast
+                  - generic [ref=e216]:
+                    - img [ref=e217]
+                    - img [ref=e223]
+                - button "Dictation (Ctrl+D)" [ref=e227] [cursor=pointer]:
+                  - img [ref=e228]
+                - button "Enter voice mode (Ctrl+⇧O)" [ref=e232] [cursor=pointer]
+          - generic [ref=e241] [cursor=pointer]:
+            - generic [ref=e242]:
+              - generic [ref=e244]: 𝕏
+              - generic [ref=e245]:
+                - paragraph [ref=e246]: Connect your 𝕏 account
+                - paragraph [ref=e247]: Unlock early features and personalized content.
+            - generic [ref=e248]:
+              - button "Dismiss" [ref=e249]
+              - button "Connect" [ref=e250]
+          - button "Hide upsell banner Unlock extended capabilities Upgrade" [ref=e251] [cursor=pointer]:
+            - button "Hide upsell banner" [ref=e255]:
+              - img [ref=e257]
+            - generic [ref=e259]:
+              - img [ref=e261]
+              - paragraph [ref=e271]: Unlock extended capabilities
+            - button "Upgrade" [ref=e272]
+    - heading "Upgrade to SuperGrok" [level=2] [ref=e274]
+  - region "Notifications alt+T"
+  - alert [ref=e275]

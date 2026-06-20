@@ -1,0 +1,288 @@
+- main [ref=e9]:
+  - generic [ref=e11]:
+    - link "New chat" [ref=e12] [cursor=pointer]:
+      - /url: /
+      - img [ref=e14]
+      - generic [ref=e15]: Gemini
+    - text: side_nav_expand
+  - generic [ref=e18]:
+    - link "Upgrade" [ref=e21]:
+      - generic [ref=e22]:
+        - img [ref=e23]: spark
+        - generic [ref=e24]: Upgrade
+    - generic [ref=e27]:
+      - generic: play_arrow
+      - button "Open menu for conversation actions." [ref=e30] [cursor=pointer]:
+        - img [ref=e32]: more_vert
+  - generic [ref=e35]:
+    - navigation "Side Navigation" [ref=e36]:
+      - generic [ref=e38]:
+        - button "Close sidebar" [ref=e39] [cursor=pointer]:
+          - img [ref=e41]: side_nav
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - navigation "Main actions menu" [ref=e46]:
+              - link "New chat" [ref=e48] [cursor=pointer]:
+                - /url: /app
+                - img [ref=e51]: gemini_chat
+                - generic [ref=e55]: New chat
+              - link "Search chats" [ref=e57] [cursor=pointer]:
+                - /url: /search
+                - img [ref=e60]: search
+                - generic [ref=e64]: Search chats
+            - text: image_create library gems
+          - generic [ref=e65]:
+            - navigation "Additional actions menu" [ref=e66]:
+              - link "Images" [ref=e68] [cursor=pointer]:
+                - /url: /images
+                - img [ref=e71]: image_create
+                - generic [ref=e75]: Images
+              - link "Library" [ref=e77] [cursor=pointer]:
+                - /url: library
+                - img [ref=e80]: library
+                - generic [ref=e84]: Library
+              - link "Gems" [ref=e86] [cursor=pointer]:
+                - /url: /gems/view
+                - img [ref=e89]: gems
+                - generic [ref=e93]: Gems
+            - generic [ref=e94]:
+              - button "Toggle Notebooks" [expanded] [ref=e95] [cursor=pointer]:
+                - generic [ref=e96]: Notebooks
+                - img [ref=e98]: keyboard_arrow_down
+              - navigation [ref=e102]:
+                - link "New notebook" [ref=e104] [cursor=pointer]:
+                  - /url: /notebooks/create
+                  - img [ref=e107]: add_2
+                  - generic [ref=e111]: New notebook
+                - link "OpenClaw Agent 实践与产品指南" [ref=e114] [cursor=pointer]:
+                  - /url: /notebook/dd1dffc0-f96e-4f35-a0d5-751f78ac7da3
+                  - img [ref=e117]: notebook
+                  - generic [ref=e121]: OpenClaw Agent 实践与产品指南
+                - link "社会观察：教育、旅行与经验见闻" [ref=e124] [cursor=pointer]:
+                  - /url: /notebook/b8b4b22a-a03b-4900-9080-dcd414eb90ff
+                  - img [ref=e127]: notebook
+                  - generic [ref=e131]: 社会观察：教育、旅行与经验见闻
+                - link "All notebooks" [ref=e133] [cursor=pointer]:
+                  - /url: /notebooks/view
+                  - img [ref=e136]: more_horiz
+                  - generic [ref=e140]: All notebooks
+            - generic [ref=e142]:
+              - button "Toggle Recents" [expanded] [ref=e143] [cursor=pointer]:
+                - generic [ref=e144]: Recents
+                - img [ref=e146]: keyboard_arrow_down
+              - navigation [ref=e152]:
+                - link "Greeting and Offer of Help" [ref=e154] [cursor=pointer]:
+                  - /url: /app/99f2f4af8193732b
+                  - generic [ref=e158]: Greeting and Offer of Help
+                - link "Greeting and Offer of Assistance" [ref=e160] [cursor=pointer]:
+                  - /url: /app/4c09a0adbeaa7f26
+                  - generic [ref=e164]: Greeting and Offer of Assistance
+                - link "Repetitive Greeting and Inquiry" [ref=e166] [cursor=pointer]:
+                  - /url: /app/49688b5a48cf95db
+                  - generic [ref=e170]: Repetitive Greeting and Inquiry
+                - link "Triple Greeting, Triple Energy" [ref=e172] [cursor=pointer]:
+                  - /url: /app/6a2a0b055908efc2
+                  - generic [ref=e176]: Triple Greeting, Triple Energy
+                - link "Greeting and Offer of Help" [ref=e178] [cursor=pointer]:
+                  - /url: /app/ccf770ce8d1c9ff4
+                  - generic [ref=e182]: Greeting and Offer of Help
+                - link "AI 助手自我介绍" [ref=e184] [cursor=pointer]:
+                  - /url: /app/3bb43ca27be1e544
+                  - generic [ref=e188]: AI 助手自我介绍
+                - link "AI 助手自我介绍" [ref=e190] [cursor=pointer]:
+                  - /url: /app/ce6eed3ba4e5f612
+                  - generic [ref=e194]: AI 助手自我介绍
+                - link "AI 助手自我介绍" [ref=e196] [cursor=pointer]:
+                  - /url: /app/9d2962e5c64d4dfa
+                  - generic [ref=e200]: AI 助手自我介绍
+                - link "简单的数学问题" [ref=e202] [cursor=pointer]:
+                  - /url: /app/b38d661f209233e8
+                  - generic [ref=e206]: 简单的数学问题
+                - link "地球到月球的距离" [ref=e208] [cursor=pointer]:
+                  - /url: /app/a4a22b3ae102e37a
+                  - generic [ref=e212]: 地球到月球的距离
+                - link "量子力学三句话介绍" [ref=e214] [cursor=pointer]:
+                  - /url: /app/77a2aa639469bcc6
+                  - generic [ref=e218]: 量子力学三句话介绍
+                - link "简单的数学问题" [ref=e220] [cursor=pointer]:
+                  - /url: /app/275b2b1ae51937dc
+                  - generic [ref=e224]: 简单的数学问题
+                - link "简单数学问题解答" [ref=e226] [cursor=pointer]:
+                  - /url: /app/f08dc6e97507558a
+                  - generic [ref=e230]: 简单数学问题解答
+                - link "AI 助手自我介绍" [ref=e232] [cursor=pointer]:
+                  - /url: /app/12fe5110f55d99eb
+                  - generic [ref=e236]: AI 助手自我介绍
+                - link "简单的数学问题" [ref=e238] [cursor=pointer]:
+                  - /url: /app/8466a6a7a0e7b822
+                  - generic [ref=e242]: 简单的数学问题
+                - link "AI 助手自我介绍" [ref=e244] [cursor=pointer]:
+                  - /url: /app/e88038b7579825d7
+                  - generic [ref=e248]: AI 助手自我介绍
+                - link "Electron Playwright AI 聚合应用建议" [ref=e250] [cursor=pointer]:
+                  - /url: /app/148a22de59fede5b
+                  - generic [ref=e254]: Electron Playwright AI 聚合应用建议
+                - link "Playwright 自动化操作豆包网站" [ref=e256] [cursor=pointer]:
+                  - /url: /app/748248e29e743a70
+                  - generic [ref=e260]: Playwright 自动化操作豆包网站
+                - link "HTML 性能优化与 GPU 占用降低" [ref=e262] [cursor=pointer]:
+                  - /url: /app/835d1287d0d68df3
+                  - generic [ref=e266]: HTML 性能优化与 GPU 占用降低
+                - link "优化HTML性能与GPU占用" [ref=e268] [cursor=pointer]:
+                  - /url: /app/bb26cd8a6e95d0f2
+                  - generic [ref=e272]: 优化HTML性能与GPU占用
+                - link "HTML 性能优化建议" [ref=e274] [cursor=pointer]:
+                  - /url: /app/96d511ac9d5b9b5c
+                  - generic [ref=e278]: HTML 性能优化建议
+                - link "HTML 性能优化方案解析" [ref=e280] [cursor=pointer]:
+                  - /url: /app/954e0f5e36674d7f
+                  - generic [ref=e284]: HTML 性能优化方案解析
+                - link "调整粒子效果速度" [ref=e286] [cursor=pointer]:
+                  - /url: /app/0ad8c6be3ef1ff01
+                  - generic [ref=e290]: 调整粒子效果速度
+                - link "优化粒子动画卡顿问题" [ref=e292] [cursor=pointer]:
+                  - /url: /app/15df7e14dad5d2fc
+                  - generic [ref=e296]: 优化粒子动画卡顿问题
+                - link "优化 Canvas 动画性能" [ref=e298] [cursor=pointer]:
+                  - /url: /app/1df71e6641a88339
+                  - generic [ref=e302]: 优化 Canvas 动画性能
+                - link "粒子动画性能优化方案" [ref=e304] [cursor=pointer]:
+                  - /url: /app/8d0ca28787608c96
+                  - generic [ref=e308]: 粒子动画性能优化方案
+                - link "Canvas 动画性能优化指南" [ref=e310] [cursor=pointer]:
+                  - /url: /app/a0140d77ca5030da
+                  - generic [ref=e314]: Canvas 动画性能优化指南
+                - link "AI Station 几何图形装饰实现" [ref=e316] [cursor=pointer]:
+                  - /url: /app/6bbc71f25ac7b9eb
+                  - generic [ref=e320]: AI Station 几何图形装饰实现
+                - link "AI Station 界面装饰元素实现" [ref=e322] [cursor=pointer]:
+                  - /url: /app/874b1bfdf64578ea
+                  - generic [ref=e326]: AI Station 界面装饰元素实现
+                - link "界面设计优化建议与方案" [ref=e328] [cursor=pointer]:
+                  - /url: /app/dfc791360ee4fdb0
+                  - generic [ref=e332]: 界面设计优化建议与方案
+                - link "全息科技底座动画代码更新" [ref=e334] [cursor=pointer]:
+                  - /url: /app/0f4b05cc957d1fed
+                  - generic [ref=e338]: 全息科技底座动画代码更新
+                - link "科技感流光动画组件开发" [ref=e340] [cursor=pointer]:
+                  - /url: /app/9d9d48a076e9430d
+                  - generic [ref=e344]: 科技感流光动画组件开发
+                - link "绿色流光动画设计与实现" [ref=e346] [cursor=pointer]:
+                  - /url: /app/0e17677b5fe1608c
+                  - generic [ref=e350]: 绿色流光动画设计与实现
+                - link "设计师点评博客阅读界面" [ref=e352] [cursor=pointer]:
+                  - /url: /app/58b3bcb0d5330ef2
+                  - generic [ref=e356]: 设计师点评博客阅读界面
+                - link "HTML 性能优化建议" [ref=e358] [cursor=pointer]:
+                  - /url: /app/0f2f3d4ae6a24ea4
+                  - generic [ref=e362]: HTML 性能优化建议
+                - link "星芒设计调整" [ref=e364] [cursor=pointer]:
+                  - /url: /app/73a45aa476875d84
+                  - generic [ref=e368]: 星芒设计调整
+                - link "视觉引导方案设计" [ref=e370] [cursor=pointer]:
+                  - /url: /app/3105464c0ecda988
+                  - generic [ref=e374]: 视觉引导方案设计
+                - link "博客首页右侧设计优化建议" [ref=e376] [cursor=pointer]:
+                  - /url: /app/8235c3c1378282fe
+                  - generic [ref=e380]: 博客首页右侧设计优化建议
+                - link "CSS 流光效果网页 Demo" [ref=e382] [cursor=pointer]:
+                  - /url: /app/17e404756ae2bc30
+                  - generic [ref=e386]: CSS 流光效果网页 Demo
+                - link "流光效果技术描述与实现建议" [ref=e388] [cursor=pointer]:
+                  - /url: /app/ea6e75319e39fb6e
+                  - generic [ref=e392]: 流光效果技术描述与实现建议
+                - link "流光效果代码重构与优化" [ref=e394] [cursor=pointer]:
+                  - /url: /app/f21b805bc8b9dc0a
+                  - generic [ref=e398]: 流光效果代码重构与优化
+                - link "丝带流光特效 HTML Demo" [ref=e400] [cursor=pointer]:
+                  - /url: /app/d69064868dd23a55
+                  - generic [ref=e404]: 丝带流光特效 HTML Demo
+                - link "流光特效转丝带效果实现" [ref=e406] [cursor=pointer]:
+                  - /url: /app/5f622ede60978451
+                  - generic [ref=e410]: 流光特效转丝带效果实现
+                - link "优化流光效果代码" [ref=e412] [cursor=pointer]:
+                  - /url: /app/9f99871c814d3e39
+                  - generic [ref=e416]: 优化流光效果代码
+                - link "动感流光效果优化方案" [ref=e418] [cursor=pointer]:
+                  - /url: /app/0f582449373ec2f0
+                  - generic [ref=e422]: 动感流光效果优化方案
+                - link "HTML Canvas Energy Stream Demo" [ref=e424] [cursor=pointer]:
+                  - /url: /app/9be558443f9bca01
+                  - generic [ref=e428]: HTML Canvas Energy Stream Demo
+                - link "Visual Effect Translation and Explanation" [ref=e430] [cursor=pointer]:
+                  - /url: /app/363e6baa97c1db4d
+                  - generic [ref=e434]: Visual Effect Translation and Explanation
+                - link "HTML Canvas Streamer Effect Demo" [ref=e436] [cursor=pointer]:
+                  - /url: /app/160b3e097296289d
+                  - generic [ref=e440]: HTML Canvas Streamer Effect Demo
+                - link "中间流光效果的文字描述" [ref=e442] [cursor=pointer]:
+                  - /url: /app/c40f5e71390dc6d5
+                  - generic [ref=e446]: 中间流光效果的文字描述
+                - link "首页流光效果技术实现指南" [ref=e448] [cursor=pointer]:
+                  - /url: /app/f0be7dca1f5a1806
+                  - generic [ref=e452]: 首页流光效果技术实现指南
+                - link "博客首页设计与SVG实现" [ref=e454] [cursor=pointer]:
+                  - /url: /app/d8ccbbc050714007
+                  - generic [ref=e458]: 博客首页设计与SVG实现
+                - link "博客首页改版：科技流光与全息底座" [ref=e460] [cursor=pointer]:
+                  - /url: /app/c19eaa980b46ca81
+                  - generic [ref=e464]: 博客首页改版：科技流光与全息底座
+                - link "博客设计优化建议" [ref=e466] [cursor=pointer]:
+                  - /url: /app/eadcc0a42e1948f4
+                  - generic [ref=e470]: 博客设计优化建议
+                - link "博客设计优化：AI工具评测网站" [ref=e472] [cursor=pointer]:
+                  - /url: /app/1874d81c81499678
+                  - generic [ref=e476]: 博客设计优化：AI工具评测网站
+          - group [ref=e477]:
+            - generic [ref=e479]:
+              - 'link "Google Account: Jim Free (a1020151695@gmail.com)" [ref=e480] [cursor=pointer]':
+                - /url: https://accounts.google.com/SignOutOptions?continue=https://gemini.google.com
+                - img [ref=e482]
+                - generic [ref=e484]: Jim Free
+              - button "Settings" [ref=e486] [cursor=pointer]:
+                - img [ref=e488]: settings
+    - generic [ref=e497]:
+      - generic [ref=e498]:
+        - heading "Conversation with Gemini" [level=1] [ref=e499]
+        - generic [ref=e502]:
+          - generic [ref=e506]:
+            - heading "You said \"hi\"" [level=2] [ref=e510]:
+              - generic [ref=e511]: You said
+              - paragraph [ref=e512]: "\"hi\""
+            - generic [ref=e513]:
+              - button "Copy prompt" [ref=e515] [cursor=pointer]:
+                - img [ref=e517]: copy
+              - button "Edit" [ref=e520] [cursor=pointer]:
+                - img [ref=e522]: edit
+          - generic [ref=e527]:
+            - generic [ref=e530]:
+              - heading "Gemini said" [level=2] [ref=e531]
+              - paragraph [ref=e536]: Hi there! How can I help you out today?
+            - generic [ref=e540]:
+              - button "Good response" [ref=e543] [cursor=pointer]:
+                - img [ref=e545]: thumb_up
+              - button "Bad response" [ref=e549] [cursor=pointer]:
+                - img [ref=e551]: thumb_down
+              - button "Redo" [ref=e556] [cursor=pointer]:
+                - img [ref=e558]: refresh
+              - button "Copy" [ref=e562] [cursor=pointer]:
+                - img [ref=e564]: copy
+              - button "Show more options" [ref=e570] [cursor=pointer]:
+                - img [ref=e572]: more_horiz
+      - generic [ref=e574]:
+        - group [ref=e575]:
+          - generic [ref=e578]:
+            - textbox "Enter a prompt for Gemini" [active] [ref=e584]:
+              - text: Ask Gemini
+              - paragraph [ref=e585]
+            - button "Upload & tools" [ref=e591] [cursor=pointer]:
+              - img [ref=e593]: plus
+            - generic [ref=e595]:
+              - group [ref=e598]:
+                - button "Open mode picker, currently Flash" [ref=e599]:
+                  - generic [ref=e601]:
+                    - generic [ref=e602]: Flash
+                    - img [ref=e604]: keyboard_arrow_down
+              - button "Microphone" [ref=e612] [cursor=pointer]:
+                - img [ref=e614]: mic
+        - paragraph [ref=e618]: Gemini is AI and can make mistakes.

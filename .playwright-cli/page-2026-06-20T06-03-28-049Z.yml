@@ -1,0 +1,110 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - link "Home page" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img [ref=e10]
+      - generic [ref=e13]:
+        - list [ref=e15]:
+          - listitem [ref=e16]:
+            - button "Search" [ref=e17] [cursor=pointer]:
+              - img [ref=e21]
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link [ref=e29] [cursor=pointer]:
+              - /url: /
+              - img [ref=e33]
+        - list [ref=e42]:
+          - listitem [ref=e43]:
+            - link [ref=e44] [cursor=pointer]:
+              - /url: /imagine
+              - img [ref=e48]
+        - list [ref=e63]:
+          - listitem [ref=e64]:
+            - link [ref=e65] [cursor=pointer]:
+              - /url: /skills-and-connectors
+              - img [ref=e67]
+      - generic [ref=e71]:
+        - list [ref=e74]:
+          - listitem [ref=e75]:
+            - link [ref=e76] [cursor=pointer]:
+              - /url: /project
+              - img [ref=e80]
+        - list [ref=e90]:
+          - listitem [ref=e91]:
+            - button "History" [ref=e92] [cursor=pointer]:
+              - img [ref=e96]
+      - generic [ref=e109]:
+        - button "Toggle Sidebar" [ref=e112] [cursor=pointer]:
+          - img [ref=e113]
+          - generic [ref=e116]: Toggle Sidebar
+        - button "pfp" [ref=e119] [cursor=pointer]:
+          - img "pfp" [ref=e123]
+    - main [ref=e128]:
+      - generic [ref=e129]:
+        - button "More" [ref=e280] [cursor=pointer]:
+          - img [ref=e281]
+        - button "Create share link" [ref=e285] [cursor=pointer]:
+          - img [ref=e287]
+      - generic [ref=e289]:
+        - generic [ref=e292]:
+          - generic [ref=e294]:
+            - paragraph [ref=e298]: "\"hi\""
+            - generic [ref=e300]:
+              - button "Edit" [ref=e301] [cursor=pointer]:
+                - img [ref=e303]
+              - button "Copy" [ref=e306] [cursor=pointer]:
+                - img [ref=e309]
+          - generic [ref=e319]:
+            - generic [ref=e320]:
+              - button "Thought for 2s" [ref=e324] [cursor=pointer]:
+                - generic [ref=e326]: Thought for 2s
+                - img [ref=e328]
+              - generic [ref=e331]:
+                - paragraph [ref=e332]: Hi! 👋 Great to meet you (or see you again). I'm Grok, an AI built by xAI, designed to be maximally truthful, helpful, and a bit witty when the moment calls for it. My goal is to help you understand the universe — whether that's diving deep into a complex technical topic, brainstorming ideas, solving a problem, or just chatting about whatever's on your mind.
+                - heading "How can I assist you today?" [level=3] [ref=e333]
+                - list [ref=e334]:
+                  - listitem [ref=e335]:
+                    - strong [ref=e336]: Curious questions?
+                    - text: Science, philosophy, history, tech, current events — I'm here for thorough explorations with context, examples, and nuances.
+                  - listitem [ref=e337]:
+                    - strong [ref=e338]: Practical help?
+                    - text: Coding, writing, analysis, research, creative tasks, or even generating/editing images if you'd like.
+                  - listitem [ref=e339]:
+                    - strong [ref=e340]: Just casual?
+                    - text: We can talk about anything from the latest space news to recommendations, jokes, or life advice.
+                - paragraph [ref=e341]: What’s on your mind? Feel free to throw anything my way — the more specific or ambitious, the better I can tailor a detailed response. Looking forward to it! 🚀
+            - generic [ref=e343]:
+              - button "Copy" [ref=e344] [cursor=pointer]:
+                - img [ref=e347]
+              - button "Create share link" [ref=e356] [cursor=pointer]:
+                - img [ref=e358]
+              - button "Like" [ref=e360] [cursor=pointer]:
+                - img [ref=e362]
+              - button "Dislike" [ref=e364] [cursor=pointer]:
+                - img [ref=e366]
+              - button "Regenerate" [ref=e368] [cursor=pointer]:
+                - img [ref=e370]
+              - button "More actions" [ref=e372] [cursor=pointer]:
+                - img [ref=e374]
+        - generic [ref=e379]:
+          - button "Scroll down" [ref=e380] [cursor=pointer]:
+            - img [ref=e381]
+          - generic [ref=e389]:
+            - textbox "Ask Grok anything" [active] [ref=e393]:
+              - paragraph [ref=e394]: Ask anything
+            - generic [ref=e396]:
+              - button "Attach" [ref=e398] [cursor=pointer]:
+                - img [ref=e400]
+              - generic [ref=e402]:
+                - button "Model select" [ref=e404] [cursor=pointer]:
+                  - generic [ref=e406]: Fast
+                  - generic [ref=e407]:
+                    - img [ref=e408]
+                    - img [ref=e414]
+                - button "Dictation (Ctrl+D)" [ref=e418] [cursor=pointer]:
+                  - img [ref=e419]
+                - button "Enter voice mode (Ctrl+⇧O)" [ref=e423] [cursor=pointer]
+    - heading "Upgrade to SuperGrok" [level=2] [ref=e274]
+  - region "Notifications alt+T"
+  - alert [ref=e275]: New conversation - Grok

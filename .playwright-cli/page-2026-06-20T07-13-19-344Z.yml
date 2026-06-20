@@ -1,0 +1,273 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+    - generic [ref=e4]: Skip to main content
+  - generic [ref=e6]:
+    - generic:
+      - banner [ref=e9]:
+        - navigation [ref=e10]:
+          - link "Home" [ref=e14] [cursor=pointer]:
+            - /url: https://www.reddit.com/
+            - img [ref=e16]
+          - generic [ref=e29]:
+            - img [ref=e31]
+            - generic [ref=e33]:
+              - img [ref=e35]
+              - generic [ref=e37]: r/mcp
+              - img [ref=e39]
+            - textbox "Search in ⁨r/mcp⁩" [ref=e42]
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - link "Advertise on Reddit" [ref=e50] [cursor=pointer]:
+                - /url: https://ads.reddit.com/register?utm_source=web3x_consumer&utm_name=nav_cta
+                - img [ref=e53]
+                - generic [ref=e55]:
+                  - generic: Advertise on Reddit
+              - button "Open chat" [ref=e63] [cursor=pointer]:
+                - img [ref=e66]
+                - generic [ref=e68]:
+                  - generic: Open chat
+              - link "Create post" [ref=e73] [cursor=pointer]:
+                - /url: /r/mcp/submit/
+                - generic [ref=e74]:
+                  - img [ref=e76]
+                  - generic [ref=e78]: Create
+                - generic [ref=e79]:
+                  - generic: Create post
+              - link "Open inbox" [ref=e85] [cursor=pointer]:
+                - /url: /notifications
+                - img [ref=e88]
+                - generic [ref=e90]:
+                  - generic: Open inbox
+            - button "Expand user menu" [ref=e95] [cursor=pointer]:
+              - generic [ref=e102]:
+                - generic: Expand user menu
+      - generic [ref=e103]:
+        - generic [ref=e106]:
+          - main [ref=e107]:
+            - 'generic "chrome-devtools-mcp 和谷歌浏览器：如何允许所有远程调试会话？难道我需要自己构建一个chrome，还是有办法自动批准所有mcp会话？ : r/mcp"'
+            - banner [ref=e109]:
+              - generic [ref=e111]:
+                - img [ref=e112]
+                - generic [ref=e114]:
+                  - text: Translations active
+                  - link "Show original" [ref=e115] [cursor=pointer]:
+                    - /url: https://www.reddit.com/r/mcp/comments/1rqjp0z/chromedevtoolsmcp_and_google_chrome_how_to_allow/?show=original
+            - generic [ref=e116]:
+              - generic [ref=e117]:
+                - generic [ref=e118]:
+                  - link "Go to mcp" [ref=e122] [cursor=pointer]:
+                    - /url: https://www.reddit.com/r/mcp/
+                    - generic [ref=e126]:
+                      - generic: Go to mcp
+                  - group [ref=e127]:
+                    - generic [ref=e128]:
+                      - link "r/mcp" [ref=e132] [cursor=pointer]:
+                        - /url: https://www.reddit.com/r/mcp/
+                      - generic [ref=e133]: •
+                      - time [ref=e135]: 3mo ago
+                    - 'link "Author: Icy_Host_1975" [ref=e141] [cursor=pointer]':
+                      - /url: https://www.reddit.com/user/Icy_Host_1975/
+                      - generic [ref=e142]: Icy_Host_1975
+                - button "Open user actions" [ref=e145] [cursor=pointer]:
+                  - img [ref=e148]
+              - 'heading "Post Title: chrome-devtools-mcp 和谷歌浏览器：如何允许所有远程调试会话？难道我需要自己构建一个chrome，还是有办法自动批准所有mcp会话？" [level=1] [ref=e150]': chrome-devtools-mcp 和谷歌浏览器：如何允许所有远程调试会话？难道我需要自己构建一个chrome，还是有办法自动批准所有mcp会话？
+              - generic [ref=e154]:
+                - paragraph [ref=e155]: 嗨 reddit！
+                - paragraph [ref=e156]: 在谷歌浏览器中寻找自动批准所有调试会话的方法吗？你能帮我解决这个烦人的问题吗？
+                - figure "允许远程调试对话框" [ref=e157]:
+                  - link "r/mcp - 允许远程调试对话框" [ref=e158] [cursor=pointer]:
+                    - /url: https://preview.redd.it/chrome-devtools-mcp-and-google-chrome-how-to-allow-all-v0-mlowzvk9ccog1.png?width=2032&format=png&auto=webp&s=16da87948c37d264c48240a3e7c602771ed60374
+                    - img "r/mcp - 允许远程调试对话框" [ref=e159]
+                  - generic [ref=e160]: 允许远程调试对话框
+                - figure "chrome://inspect/#remote-debugging" [ref=e161]:
+                  - link "r/mcp - chrome://inspect/#remote-debugging" [ref=e162] [cursor=pointer]:
+                    - /url: https://preview.redd.it/chrome-devtools-mcp-and-google-chrome-how-to-allow-all-v0-v6hhschcccog1.png?width=4064&format=png&auto=webp&s=7a96a571b8303336a6d9dd606431a4416c228906
+                    - img "r/mcp - chrome://inspect/#remote-debugging" [ref=e163]
+                  - generic [ref=e164]: chrome://inspect/#remote-debugging
+                - paragraph [ref=e165]: 更新：
+                - paragraph [ref=e166]: 我怎么解决的？我在机器上运行了一个 mcp 服务器（我的分支 github.com/dzianisv/chrome-devtools-mcp），所以它只会询问一次，然后所有代理都可以重用，即使是运行在云中的 openclaw！
+                - paragraph [ref=e167]: 上游的 chrome-devtools-mcp 只支持 stdio。这意味着：
+                - paragraph [ref=e168]: "- 每个 AI 代理都会生成自己的进程并与 Chrome 进行自己的 CDP 连接"
+                - paragraph [ref=e169]: "- 当 2 个或更多代理同时运行时（Claude Code + Copilot + OpenCode），它们会循环重置彼此的连接"
+                - paragraph [ref=e170]: "- 云托管的代理（在服务器或虚拟机上运行）无法访问你的本地 Chrome——没有 URL，只有一个本地子进程"
+                - paragraph [ref=e171]: "**我构建了什么：**"
+                - paragraph [ref=e172]: 我进行了分支，添加了 HTTP 服务器模式 + Tailscale 集成。
+                - paragraph [ref=e173]: 一个服务在你的 Mac 上运行。每个代理通过 HTTP 连接。每个代理都有自己的独立会话。没有冲突。
+                - paragraph [ref=e174]:
+                  - text: npx
+                  - link "u/vibebrowser" [ref=e175] [cursor=pointer]:
+                    - /url: /user/vibebrowser/
+                  - text: install --port 9333
+                - paragraph [ref=e176]: 对于云代理，一个额外的标志可以通过 Tailscale 安全地公开你的本地 Chrome：
+                - paragraph [ref=e177]:
+                  - text: npx
+                  - link "u/vibebrowser" [ref=e178] [cursor=pointer]:
+                    - /url: /user/vibebrowser/
+                  - text: install --port 9333 --tailscale
+                - paragraph [ref=e179]:
+                  - text: 你的云代理连接到
+                  - link "https://your-mac.tail1234.ts.net/mcp" [ref=e180] [cursor=pointer]:
+                    - /url: https://your-mac.tail1234.ts.net/mcp
+                  - text: — 私密、加密，没有公共端口。
+                - paragraph [ref=e181]: "**为何机器人检测不会触发：** 使用 DevToolsActivePort（与 Chrome DevTools 自身使用的相同方法），而不是每个反机器人系统指纹识别的 --remote-debugging-port。"
+                - paragraph [ref=e182]: 安装程序会自动检测并配置 Claude Code、Copilot CLI 和 OpenCode。
+                - paragraph [ref=e183]: "**妈妈版本：** 你的 Chrome 知道你是谁——你的 Gmail、你的登录、你保存的密码。现在你的 AI 助手（即使是在远台服务器上运行的那个）可以使用你的 Chrome 为你做事情。就像给你的助手一把房门钥匙，但只是前门，只有在你说的时候。"
+                - paragraph [ref=e184]: "**链接：**"
+                - paragraph [ref=e185]:
+                  - text: "- npm:"
+                  - link "https://www.npmjs.com/package/@vibebrowser/chrome-devtools-mcp" [ref=e186] [cursor=pointer]:
+                    - /url: https://www.npmjs.com/package/@vibebrowser/chrome-devtools-mcp
+                - paragraph [ref=e187]:
+                  - text: "- 源码:"
+                  - link "https://github.com/dzianisv/chrome-devtools-mcp" [ref=e188] [cursor=pointer]:
+                    - /url: https://github.com/dzianisv/chrome-devtools-mcp
+            - generic [ref=e193]: "Sort by:"
+            - article "Comment from huttobe 3 months ago" [ref=e197]:
+              - generic "huttobe's profile --- avatar huttobe's profile 3mo ago" [ref=e198] [cursor=pointer]:
+                - link "huttobe's profile --- avatar" [ref=e204]:
+                  - /url: https://www.reddit.com/user/huttobe/
+                  - img [ref=e209]
+                - generic [ref=e214]:
+                  - link "huttobe's profile" [ref=e218]:
+                    - /url: https://www.reddit.com/user/huttobe/
+                    - text: huttobe
+                  - generic [ref=e219]: •
+                  - link "3mo ago" [ref=e221]:
+                    - /url: https://www.reddit.com/r/mcp/comments/1rqjp0z/comment/o9syxgj/?tl=zh-hans
+                    - time [ref=e223]: 3mo ago
+              - paragraph [ref=e230]: 猜猜你可以让你的代理编写一个简单的扩展，使调试保持持续状态
+          - generic [ref=e233]:
+            - complementary "Community information" [ref=e237]:
+              - generic [ref=e238]:
+                - generic [ref=e239]:
+                  - generic [ref=e258]: 52K
+                  - generic [ref=e259]: 1.1K
+                - separator [ref=e260]
+                - generic [ref=e261]:
+                  - heading "r/mcp Rules" [level=2] [ref=e263]:
+                    - generic [ref=e264]: r/mcp Rules
+                  - generic [ref=e265]:
+                    - group [ref=e267]:
+                      - generic "1 No waitlists" [ref=e268] [cursor=pointer]:
+                        - generic [ref=e270]:
+                          - generic [ref=e271]:
+                            - generic [ref=e273]: "1"
+                            - heading "No waitlists" [level=2] [ref=e277]
+                          - img [ref=e280]
+                    - group [ref=e283]:
+                      - generic "2 No AI generated slop" [ref=e284] [cursor=pointer]:
+                        - generic [ref=e286]:
+                          - generic [ref=e287]:
+                            - generic [ref=e289]: "2"
+                            - heading "No AI generated slop" [level=2] [ref=e293]
+                          - img [ref=e296]
+                    - group [ref=e299]:
+                      - generic "3 No astroturfing" [ref=e300] [cursor=pointer]:
+                        - generic [ref=e302]:
+                          - generic [ref=e303]:
+                            - generic [ref=e305]: "3"
+                            - heading "No astroturfing" [level=2] [ref=e309]
+                          - img [ref=e312]
+                    - group [ref=e315]:
+                      - generic "4 Use showcase tag to share your work" [ref=e316] [cursor=pointer]:
+                        - generic [ref=e318]:
+                          - generic [ref=e319]:
+                            - generic [ref=e321]: "4"
+                            - heading "Use showcase tag to share your work" [level=2] [ref=e325]
+                          - img [ref=e328]
+                - separator [ref=e330]
+                - generic [ref=e331]:
+                  - heading "Resources" [level=2] [ref=e333]:
+                    - generic [ref=e334]: Resources
+                  - generic [ref=e335]:
+                    - link "MCP Discord MCP Discord" [ref=e336] [cursor=pointer]:
+                      - /url: https://glama.ai/mcp/discord
+                      - generic [ref=e339]: MCP Discord
+                      - generic [ref=e340]:
+                        - generic: MCP Discord
+                    - link "MCP Servers MCP Servers" [ref=e341] [cursor=pointer]:
+                      - /url: https://glama.ai/mcp/servers
+                      - generic [ref=e344]: MCP Servers
+                      - generic [ref=e345]:
+                        - generic: MCP Servers
+                    - link "Remote MCP Servers Remote MCP Servers" [ref=e346] [cursor=pointer]:
+                      - /url: https://glama.ai/mcp/remote-servers
+                      - generic [ref=e349]: Remote MCP Servers
+                      - generic [ref=e350]:
+                        - generic: Remote MCP Servers
+                    - link "MCP Inspector MCP Inspector" [ref=e351] [cursor=pointer]:
+                      - /url: https://glama.ai/mcp/inspector
+                      - generic [ref=e354]: MCP Inspector
+                      - generic [ref=e355]:
+                        - generic: MCP Inspector
+                    - link "MCP Frameworks MCP Frameworks" [ref=e356] [cursor=pointer]:
+                      - /url: https://github.com/punkpeye/awesome-mcp-servers?tab=readme-ov-file#frameworks
+                      - generic [ref=e359]: MCP Frameworks
+                      - generic [ref=e360]:
+                        - generic: MCP Frameworks
+                    - link "MCP vs API (OpenAPI) MCP vs API (OpenAPI)" [ref=e361] [cursor=pointer]:
+                      - /url: https://glama.ai/blog/2025-06-06-mcp-vs-api
+                      - generic [ref=e364]: MCP vs API (OpenAPI)
+                      - generic [ref=e365]:
+                        - generic: MCP vs API (OpenAPI)
+                    - link "MCP LinkedIn Group MCP LinkedIn Group" [ref=e366] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/groups/17898029/
+                      - generic [ref=e369]: MCP LinkedIn Group
+                      - generic [ref=e370]:
+                        - generic: MCP LinkedIn Group
+                - separator [ref=e371]
+                - generic [ref=e372]:
+                  - heading "Moderators" [level=2] [ref=e374]:
+                    - generic [ref=e375]: Moderators
+                  - link "Message Mods" [ref=e377] [cursor=pointer]:
+                    - /url: https://www.reddit.com/message/compose?to=r/mcp
+                    - generic [ref=e378]:
+                      - img [ref=e380]
+                      - generic [ref=e382]: Message Mods
+                  - generic [ref=e384]:
+                    - img "u/punkpeye avatar" [ref=e389]
+                    - generic [ref=e390]:
+                      - link "u/punkpeye" [ref=e393] [cursor=pointer]:
+                        - /url: /user/punkpeye/
+                        - generic [ref=e394]: u/punkpeye
+                      - generic [ref=e396]: Punkpeye
+                  - generic [ref=e398]:
+                    - img "u/modelcontextprotocol avatar" [ref=e403]
+                    - generic [ref=e404]:
+                      - generic [ref=e406]:
+                        - link "u/modelcontextprotocol" [ref=e407] [cursor=pointer]:
+                          - /url: /user/modelcontextprotocol/
+                          - generic [ref=e408]: u/modelcontextprotocol
+                        - 'generic "Flair: bot" [ref=e410]': bot
+                      - generic [ref=e412]: MCP
+                  - generic [ref=e414]:
+                    - img "u/lucgagan avatar" [ref=e419]
+                    - generic [ref=e420]:
+                      - link "u/lucgagan" [ref=e423] [cursor=pointer]:
+                        - /url: /user/lucgagan/
+                        - generic [ref=e424]: u/lucgagan
+                      - generic [ref=e426]: Luc Gagan
+                  - link "View all moderators" [ref=e427] [cursor=pointer]:
+                    - /url: /mod/mcp/moderators/
+                    - generic [ref=e429]: View all moderators
+            - list [ref=e431]:
+              - listitem [ref=e432]:
+                - link "Reddit Rules" [ref=e434] [cursor=pointer]:
+                  - /url: https://www.redditinc.com/policies/content-policy
+              - listitem [ref=e435]:
+                - link "Privacy Policy" [ref=e437] [cursor=pointer]:
+                  - /url: https://www.reddit.com/policies/privacy-policy
+              - listitem [ref=e438]:
+                - link "User Agreement" [ref=e440] [cursor=pointer]:
+                  - /url: https://www.redditinc.com/policies/user-agreement
+              - listitem [ref=e441]:
+                - link "Accessibility" [ref=e443] [cursor=pointer]:
+                  - /url: https://support.reddithelp.com/hc/sections/38303584022676-Accessibility
+              - listitem [ref=e444]:
+                - link "Reddit, Inc. © 2026. All rights reserved." [ref=e445] [cursor=pointer]:
+                  - /url: https://redditinc.com
+        - button "Collapse Navigation" [ref=e450] [cursor=pointer]:
+          - img [ref=e453]
+          - generic [ref=e455]:
+            - generic: Collapse Navigation
