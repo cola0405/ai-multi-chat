@@ -287,24 +287,30 @@ export function upload(filePath: string) {
       await uploadBtn.click();
       await page.waitForTimeout(1000);
     } else {
-      // 兜底：找无文字有图标的可点击元素（button/img/svg）
-      const allBtns = page.locator('button, [role="button"]');
-      const btnCount = await allBtns.count();
-      for (let i = btnCount - 1; i >= Math.max(0, btnCount - 60); i--) {
-        const btn = allBtns.nth(i);
+      // 兜底：在输入框附近找无文字有图标的可点击元素
+      const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
+      const container = inputArea.locator('xpath=ancestor::div[5]');
+      const nearbyBtns = container.locator('button, [role="button"]');
+      const nearbyCount = await nearbyBtns.count();
+      for (let i = nearbyCount - 1; i >= 0; i--) {
+        const btn = nearbyBtns.nth(i);
         if (!(await btn.isVisible().catch(() => false))) continue;
         const text = await btn.innerText().catch(() => '');
         const hasIcon = await btn.locator('img, svg').count();
         if (text.trim().length === 0 && hasIcon > 0) { await btn.click(); await page.waitForTimeout(800); break; }
       }
-      // 如果还没找到，尝试找输入框附近的可点击 img
-      const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
-      if (await inputArea.isVisible().catch(() => false)) {
-        const parent = inputArea.locator('..');
-        const nearbyImg = parent.locator('img[cursor=pointer], img[style*="cursor"]').first();
-        if (await nearbyImg.isVisible().catch(() => false)) {
-          await nearbyImg.click();
-          await page.waitForTimeout(800);
+      // 如果还没找到，尝试输入框附近的可点击 img
+      const fileInputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+      if (fileInputCount === 0) {
+        const nearbyImgs = container.locator('img');
+        const imgCount = await nearbyImgs.count();
+        for (let i = 0; i < Math.min(imgCount, 5); i++) {
+          const img = nearbyImgs.nth(i);
+          if (!(await img.isVisible().catch(() => false))) continue;
+          await img.click();
+          await page.waitForTimeout(500);
+          const newCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+          if (newCount > 0) break;
         }
       }
     }
