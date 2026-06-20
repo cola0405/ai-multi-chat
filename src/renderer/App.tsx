@@ -7,11 +7,19 @@ import type { SiteConfig, ChatMessage, Attachment, RunEvent } from './types';
 
 type View = 'chat' | 'settings';
 
+const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+function getFileType(filename: string): 'image' | 'document' {
+  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  return IMAGE_EXTS.includes(ext) ? 'image' : 'document';
+}
+
 export default function App() {
   const [sites, setSites] = useState<SiteConfig[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [view, setView] = useState<View>('chat');
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [dragOver, setDragOver] = useState(false);
 
   // 初始加载
   useEffect(() => {
@@ -127,9 +135,54 @@ export default function App() {
     await refreshSites();
   }, [refreshSites]);
 
+  // 窗口级拖拽
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget === e.target) setDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+    const newAttachments: Attachment[] = files.map((f) => ({
+      path: f.path,
+      name: f.name,
+      type: getFileType(f.name),
+    }));
+    setAttachments((prev) => [...prev, ...newAttachments]);
+  }, []);
+
   return (
-    <div className="app">
+    <div
+      className="app"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className="titlebar" />
+
+      {dragOver && (
+        <div className="drag-overlay">
+          <div className="drag-overlay-content">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p>松开以添加附件</p>
+          </div>
+        </div>
+      )}
 
       <div className="app-body">
         <Sidebar
@@ -144,7 +197,11 @@ export default function App() {
           {view === 'chat' ? (
             <>
               <MessageList messages={messages} />
-              <ChatInput onSend={handleSend} />
+              <ChatInput
+                onSend={handleSend}
+                attachments={attachments}
+                onAttachmentsChange={setAttachments}
+              />
             </>
           ) : (
             <SiteSettings
