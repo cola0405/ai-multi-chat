@@ -253,7 +253,7 @@ export function upload(filePath: string) {
   const absPath = path.resolve(filePath);
   const content = fs.readFileSync(absPath);
   const base64 = content.toString('base64');
-  const name = path.basename(absPath).replace(/'/g, "\\'").replace(/"/g, '\\"');
+  const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
   const ext = path.extname(absPath).toLowerCase();
   const mimeMap: Record<string, string> = {
     '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
@@ -264,90 +264,40 @@ export function upload(filePath: string) {
   const mime = mimeMap[ext] || 'application/octet-stream';
 
   const code = `async page => {
-  await page.keyboard.press('Escape');
-  await page.waitForTimeout(300);
-
-  let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-
-  if (inputCount === 0) {
-    // 点击输入框旁边的附件按钮（通常是最后一个无文本的按钮）
-    const allBtns = page.locator('button');
-    const btnCount = await allBtns.count();
-    
-    // 从后往前找，靠近输入框的按钮更可能是附件按钮
-    for (let i = btnCount - 1; i >= Math.max(0, btnCount - 20); i--) {
-      const btn = allBtns.nth(i);
-      const text = await btn.innerText().catch(() => '');
-      const isVisible = await btn.isVisible().catch(() => false);
-      if (!isVisible) continue;
-      if (text.trim().length > 0) continue;
-      const imgCount = await btn.locator('img').count();
-      if (imgCount === 0) continue;
-      
-      // 找到无文本、有图标的可见按钮，点击它
-      await btn.click();
-      await page.waitForTimeout(800);
-      break;
-    }
-
-    // 等待菜单出现，点击"上传文件或图片"
-    await page.waitForTimeout(500);
-    const menuItems = page.getByRole('menuitem');
-    const menuCount = await menuItems.count();
-    for (let i = 0; i < menuCount; i++) {
-      const text = await menuItems.nth(i).innerText().catch(() => '');
-      if (text.includes('\\u4e0a\\u4f20') || text.includes('上传')) {
-        await menuItems.nth(i).click();
-        await page.waitForTimeout(1000);
-        break;
-      }
-    }
-
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(500);
-    
-    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-  }
-
-  if (inputCount === 0) {
-    // 最后尝试：直接找到所有 input[type=file]，包括隐藏的
-    inputCount = await page.evaluate(() => {
-      const inputs = document.querySelectorAll('input[type=file]');
-      inputs.forEach(inp => { inp.style.display = 'block'; inp.style.visibility = 'visible'; });
-      return inputs.length;
-    });
-  }
-
-  if (inputCount === 0) throw new Error('No file input found after all attempts');
-
   const result = await page.evaluate(() => {
-    const input = document.querySelector('input[type=file]');
-    if (!input) return 'no input';
+    try {
+      const b64 = '${base64}';
+      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      const file = new File([bytes], '${name}', { type: '${mime}' });
 
-    const b64 = '${base64}';
-    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    const file = new File([bytes], '${name}', { type: '${mime}' });
-    const dt = new DataTransfer();
-    dt.items.add(file);
+      const dt = new DataTransfer();
+      dt.items.add(file);
 
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
-    if (setter && setter.set) {
-      setter.set.call(input, dt.files);
-    } else {
-      input.files = dt.files;
+      const dropEvent = new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dt,
+      });
+
+      // 优先找聊天输入区域，fallback 到 body
+      const dropZone = document.querySelector('textarea, [contenteditable="true"]')
+        ? document.querySelector('textarea, [contenteditable="true"]').closest('div')
+        : document.body;
+
+      (dropZone || document.body).dispatchEvent(dropEvent);
+
+      // 同时触发 dragover 让 drop 生效
+      const dragOverEvent = new DragEvent('dragover', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dt,
+      });
+      (dropZone || document.body).dispatchEvent(dragOverEvent);
+
+      return 'dropped ' + file.name + ' (' + file.size + ' bytes) on ' + (dropZone ? dropZone.tagName : 'body');
+    } catch (e) {
+      return 'error: ' + e.toString();
     }
-
-    const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
-    if (propsKey) {
-      const props = input[propsKey];
-      if (props && props.onChange) {
-        props.onChange({ target: input, currentTarget: input });
-        return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via React';
-      }
-    }
-
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-    return 'uploaded ' + file.name + ' (' + file.size + ' bytes) via native';
   });
   return result;
 }`;
