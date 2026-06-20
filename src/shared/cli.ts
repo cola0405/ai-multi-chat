@@ -264,17 +264,48 @@ export function upload(filePath: string) {
   const mime = mimeMap[ext] || 'application/octet-stream';
 
   const code = `async page => {
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+
+  let inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+
+  if (inputCount === 0) {
+    const btns = page.locator('button');
+    const count = await btns.count();
+    for (let i = count - 1; i >= 0; i--) {
+      const text = await btns.nth(i).innerText().catch(() => '');
+      const hasImg = await btns.nth(i).locator('img').count();
+      if (hasImg > 0 && text.trim() === '') {
+        await btns.nth(i).click();
+        await page.waitForTimeout(500);
+        break;
+      }
+    }
+
+    const uploadItem = page.getByRole('menuitem').filter({ hasText: /\\u4e0a\\u4f20/ });
+    if (await uploadItem.count() > 0) {
+      await uploadItem.click();
+      await page.waitForTimeout(1000);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+    }
+
+    inputCount = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
+  }
+
+  if (inputCount === 0) throw new Error('No file input found');
+
   const result = await page.evaluate(() => {
+    const input = document.querySelector('input[type=file]');
+    if (!input) return 'no input';
     const b64 = '${base64}';
     const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
     const file = new File([bytes], '${name}', { type: '${mime}' });
     const dt = new DataTransfer();
     dt.items.add(file);
-    const input = document.querySelector("input[type=file]");
-    if (!input) return "no file input found";
     input.files = dt.files;
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-    return "uploaded " + file.name + " (" + file.size + " bytes)";
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    return 'uploaded ' + file.name + ' (' + file.size + ' bytes)';
   });
   return result;
 }`;
