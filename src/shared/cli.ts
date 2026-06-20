@@ -273,28 +273,17 @@ export function upload(filePath: string) {
       const dt = new DataTransfer();
       dt.items.add(file);
 
-      const dropEvent = new DragEvent('drop', {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dt,
-      });
+      // 找到拖放目标区域
+      const textarea = document.querySelector('textarea, [contenteditable="true"]');
+      const dropZone = textarea ? textarea.closest('div') || textarea : document.body;
 
-      // 优先找聊天输入区域，fallback 到 body
-      const dropZone = document.querySelector('textarea, [contenteditable="true"]')
-        ? document.querySelector('textarea, [contenteditable="true"]').closest('div')
-        : document.body;
+      // 完整的拖放事件序列
+      const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
+      dropZone.dispatchEvent(new DragEvent('dragenter', opts));
+      dropZone.dispatchEvent(new DragEvent('dragover', opts));
+      dropZone.dispatchEvent(new DragEvent('drop', opts));
 
-      (dropZone || document.body).dispatchEvent(dropEvent);
-
-      // 同时触发 dragover 让 drop 生效
-      const dragOverEvent = new DragEvent('dragover', {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dt,
-      });
-      (dropZone || document.body).dispatchEvent(dragOverEvent);
-
-      return 'dropped ' + file.name + ' (' + file.size + ' bytes) on ' + (dropZone ? dropZone.tagName : 'body');
+      return 'dropped ' + file.name + ' (' + file.size + ' bytes)';
     } catch (e) {
       return 'error: ' + e.toString();
     }
