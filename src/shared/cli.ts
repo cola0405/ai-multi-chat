@@ -109,7 +109,7 @@ export async function waitForAttach(): Promise<void> {
 }
 
 // ─── 核心执行 ──────────────────────────────────────────
-export function cli(args: string, timeout = 30_000): string {
+export function cli(args: string, timeout = 60_000): string {
   // attach 命令本身不需要 ensureAttached
   if (!args.startsWith('attach') && !args.startsWith('detach')) {
     ensureAttached();
@@ -122,9 +122,14 @@ export function cli(args: string, timeout = 30_000): string {
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch (err: unknown) {
-    const e = err as { stderr?: string; stdout?: string; message?: string };
+    const e = err as { stderr?: string; stdout?: string; message?: string; status?: number };
     const stderr = e.stderr?.toString().trim() || '';
     const stdout = e.stdout?.toString().trim() || '';
+    // 如果 stdout 有内容（如 run-code 的 Result），视为成功
+    if (stdout && stdout.includes('### Result')) {
+      const match = stdout.match(/### Result\s*[\r\n]+(.+)/);
+      return match ? match[1].trim() : stdout;
+    }
     throw new Error(`命令失败: ${fullCmd}\n${stderr || stdout || e.message}`);
   }
 }
