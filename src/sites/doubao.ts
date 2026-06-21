@@ -81,7 +81,7 @@ const KW = {
 
 function log(...args: unknown[]) { console.log("[doubao]", ...args); }
 
-// ─── 上传附件（drop 事件 → contenteditable / textarea）────
+// ─── 上传附件（定位坐标 → mouse.click → native setter 设文件）────
 async function upload(filePath: string) {
   const abs = path.resolve(filePath);
   if (!fs.existsSync(abs)) throw new Error(`附件不存在: ${abs}`);
@@ -92,18 +92,47 @@ async function upload(filePath: string) {
   const mime: Record<string, string> = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp", ".pdf": "application/pdf", ".txt": "text/plain" };
   const m = mime[ext] || "application/octet-stream";
   const r = runCode(`async page => {
+    // 1. 在页面中找到 + 按钮并获取其中心坐标
+    const pos = await page.evaluate(() => {
+      const vh = window.innerHeight;
+      const btns = document.querySelectorAll('button');
+      for (const b of btns) {
+        const r = b.getBoundingClientRect();
+        if (r.width > 0 && r.width < 42 && r.height < 42
+            && !(b.textContent || '').trim()
+            && b.querySelector('svg')
+            && r.y > vh * 0.5) {
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+        }
+      }
+      return null;
+    });
+    if (!pos) return 'plus-button-not-found';
+
+    // 2. 用 Playwright 原生鼠标点击（确保 React 事件正确派发）
+    await page.mouse.click(pos.x, pos.y);
+    await page.waitForTimeout(1000);
+
+    // 3. 等待 file input 出现
+    try {
+      await page.locator('input[type="file"]').waitFor({ state: 'attached', timeout: 5000 });
+    } catch { return 'file-input-not-found'; }
+
+    // 4. 在浏览器内构造 File 对象，用原生 setter 设置并触发 change
     return await page.evaluate(({b64:b,name:n,mime:m}) => {
       const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
       const file = new File([bytes], n, {type:m});
       const dt = new DataTransfer(); dt.items.add(file);
-      const ed = document.querySelector('[contenteditable="true"], textarea');
-      if (!ed) return 'no-editor';
-      ed.dispatchEvent(new DragEvent('dragover',{dataTransfer:dt,bubbles:true,cancelable:true}));
-      ed.dispatchEvent(new DragEvent('drop',{dataTransfer:dt,bubbles:true,cancelable:true}));
-      return 'dropped:'+file.name;
+      const inp = document.querySelector('input[type=file]');
+      if (!inp) return 'no-input';
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set;
+      setter.call(inp, dt.files);
+      inp.dispatchEvent(new Event('change', {bubbles:true}));
+      return 'uploaded:' + file.name;
     },{b64:'${b64}',name:'${name}',mime:'${m}'});
   }`);
   log(`上传结果: ${r}`);
+  if (!r.includes('uploaded:')) throw new Error(`上传失败: ${r}`);
   await sleep(2000);
 }
 
@@ -146,7 +175,12 @@ async function main() {
 
   try {
     goto(URL); await sleep(3000); log("就绪");
-    if (filePath) await upload(filePath);
+    log(`filePath: ${filePath}`);
+    if (filePath) {
+      log("开始上传文件...");
+      await upload(filePath);
+      log("文件上传完成");
+    }
     await fillPrompt(prompt);
     await clickSend();
     log("已发送");
