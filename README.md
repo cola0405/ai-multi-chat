@@ -23,9 +23,9 @@ Electron 33 / React 18 / TypeScript 5.6 / Vite 5 / tsx 4.19 / playwright-cli
 └────────────┬────────────────────────────────────┘
              │ child_process.spawn (顺序，一个完成后再启动下一个)
 ┌────────────▼────────────────────────────────────┐
-│  Site Script (node + tsx 执行 .ts)               │
-│  c.attach() → c.goto() → c.fill() → c.click()   │
-│  每个脚本独立 attach，文件锁保证扩展不冲突          │
+│  Site Script (完全独立 .ts，内联所有工具函数)       │
+│  pw() → snapshot() → click() → typeText()       │
+│  每个脚本自带 attach/goto/upload 逻辑             │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -39,7 +39,7 @@ ai-multi-chat/
 ├── src/
 │   ├── main/
 │   │   ├── main.ts             # Electron 入口，IPC handlers，顺序执行逻辑
-│   │   ├── runner.ts           # 子进程 spawn 逻辑
+│   │   ├── runner.ts           # 子进程 spawn 逻辑（stdin 传 prompt）
 │   │   └── config.ts           # 站点配置管理 + 启动时同步内置脚本
 │   ├── preload/
 │   │   └── preload.ts          # contextBridge 暴露 API
@@ -54,23 +54,19 @@ ai-multi-chat/
 │   │       ├── MessageList.tsx # 消息列表 + 站点状态展示
 │   │       ├── Sidebar.tsx     # 侧边栏：站点选择
 │   │       └── SiteSettings.tsx# 站点管理 CRUD
-│   ├── shared/
-│   │   ├── cli.ts              # playwright-cli 封装库 (attach/snapshot/fill/click...)
-│   │   ├── types.ts            # 共享类型 (SitePlugin, RunResult)
-│   │   └── template.ts         # 站点脚本模板
-│   └── sites/                  # 内置站点脚本（版本管理 + 自动同步到 userData）
+│   └── sites/                  # 站点脚本（每个完全独立，可单独运行）
+│       ├── qianwen.ts          # 通义千问 (qianwen.com)
+│       ├── yuanbao.ts          # 腾讯元宝 (yuanbao.tencent.com)
 │       ├── chatglm.ts          # ChatGLM (chatglm.cn)
 │       ├── chatgpt.ts          # ChatGPT (chatgpt.com)
 │       ├── deepseek.ts         # DeepSeek (deepseek.com)
 │       ├── doubao.ts           # 豆包 (doubao.com)
 │       ├── gemini.ts           # Gemini (gemini.google.com)
 │       ├── grok.ts             # Grok (grok.com)
-│       ├── kimi.ts             # Kimi (kimi.moonshot.cn)
-│       ├── qianwen.ts          # 通义千问 (qianwen.com)
-│       └── yuanbao.ts          # 腾讯元宝 (yuanbao.tencent.com)
+│       └── kimi.ts             # Kimi (kimi.moonshot.cn)
 ```
 
-运行时，`config.ts` 的 `ensureSharedFiles()` 在 app 启动时自动将 `src/shared/cli.ts`、`types.ts` 和 `src/sites/*.ts` 同步到 `{userData}/` 目录（Windows: `%APPDATA%/ai-multi-chat/`）。
+每个站点脚本完全自包含，内联所有 playwright-cli 封装函数，不依赖任何共享模块。
 
 ## 构建与运行
 
@@ -91,146 +87,95 @@ npm run build
 npm start
 ```
 
+## 命令行直接调用
+
+每个脚本都可以独立运行，不依赖 Electron：
+
+```bash
+# 只发文本
+npx tsx src/sites/qianwen.ts "你好"
+
+# 带附件
+npx tsx src/sites/qianwen.ts "分析图片" --file ./test.png
+
+# 通过 stdin 传入 prompt
+echo "你好" | npx tsx src/sites/qianwen.ts
+```
+
+将 `qianwen` 替换为任意站点名即可（`yuanbao`、`chatglm`、`grok` 等）。
+
 ## 站点脚本开发
 
 ### 添加新站点
 
 1. 在 `src/sites/` 下新建 `yoursite.ts`
-2. 参考已有脚本的结构，实现 `SitePlugin` 接口
-3. 重新构建 `npm run build`，启动后自动同步到 userData
+2. 复制任意现有脚本作为模板
+3. 修改站点 URL、关键词、上传逻辑
+4. 重新构建 `npm run build`，启动后自动同步到 userData
 
-### SitePlugin 接口
+### 脚本结构
 
-```typescript
-interface SitePlugin {
-  name: string;
-  url: string;
-  init(): Promise<void>;           // 导航到站点、等待加载
-  run(prompt: string, filePath?: string): Promise<RunResult>;  // 发送消息
-  newChat?(): Promise<void>;       // 可选：新建对话
-}
-```
-
-### 脚本结构模板
+每个脚本完全独立，结构如下：
 
 ```typescript
-import * as c from "../cli.js";
-import type { SitePlugin, RunResult } from "../types.js";
+import { execSync } from "node:child_process";
+import * as path from "node:path";
+import * as fs from "node:fs";
 
+// ─── playwright-cli 封装（每个脚本内联）────────────────
+const SESSION = process.env.PW_SESSION || "yoursite";
+
+function pw(args: string, timeout = 60_000): string { /* ... */ }
+function runCode(code: string): string { /* ... */ }
+function sleep(ms: number) { return new Promise<void>(r => setTimeout(r, ms)); }
+function attach() { /* playwright-cli attach --extension=chrome */ }
+function detach() { /* playwright-cli detach */ }
+function goto(url: string) { pw(`goto ${url}`); }
+function snapshot() { /* 解析 playwright-cli snapshot 输出 */ }
+function find(els, kws) { /* 关键词匹配 */ }
+function click(ref: string) { pw(`click ${ref}`); }
+function typeText(text: string) { /* insertText + input 事件 */ }
+function press(key: string) { pw(`press ${key}`); }
+function evalJs(expr: string): string { /* ... */ }
+async function readStdin(): Promise<string> { /* ... */ }
+
+// ─── 站点逻辑（每个脚本独立实现）───────────────────────
+const URL = "https://your-site.com";
 const KW = {
-  input: ["textbox", "textarea", "contenteditable", "输入框占位文本"],
-  send: ["发送", "send", "submit"],
+  input: ["输入框占位文本"],
+  send: ["发送", "send"],
 };
 
-const CONFIG = {
-  url: "https://your-site.com",
-  actionDelay: 800,
-};
+function log(...args: unknown[]) { console.log("[yoursite]", ...args); }
 
-function log(...args: unknown[]) {
-  console.log("[yoursite]", ...args);
+async function upload(filePath: string) {
+  // 站点特定的上传逻辑（drop 事件 / 点击按钮+菜单 / setInputFiles 等）
 }
 
-async function fillPrompt(text: string): Promise<void> {
-  const snap = c.snapshot();
-  const ref = c.findByKeywords(snap, KW.input);
-  if (ref) {
-    c.fill(ref, text);
-  } else {
-    c.typeText(text);
-  }
-  await c.sleep(CONFIG.actionDelay);
-}
+async function fillPrompt(text: string) { /* 找输入框 → 点击 → 输入 */ }
+async function clickSend() { /* 找发送按钮 → 点击或 Enter */ }
 
-async function clickSend(): Promise<void> {
-  const snap = c.snapshot();
-  const ref = c.findByKeywords(snap, KW.send);
-  if (ref) c.click(ref); else c.press("Enter");
-  await c.sleep(CONFIG.actionDelay);
-}
-
-export const plugin: SitePlugin = {
-  name: "yoursite",
-  url: CONFIG.url,
-
-  async init() {
-    c.goto(CONFIG.url);
-    await c.sleep(3000);
-  },
-
-  async run(prompt: string, attachment?: string): Promise<RunResult> {
-    const startTime = Date.now();
-    const result: RunResult = {
-      prompt, attachment, response: "",
-      timestamp: new Date().toISOString(),
-      duration: 0, success: false,
-    };
-    try {
-      if (attachment) { c.upload(attachment); await c.sleep(2000); }
-      await fillPrompt(prompt);
-      await clickSend();
-      log("已发送，不等待回复");
-      result.success = true;
-    } catch (err) {
-      result.error = err instanceof Error ? err.message : String(err);
-      log(`失败: ${result.error}`);
-    }
-    result.duration = Date.now() - startTime;
-    return result;
-  },
-};
-
-// ─── 独立运行入口 ──────────────────────────────────────
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length === 0) {
-    console.log(`用法: npx tsx src/sites/yoursite.ts "提示词" [--file ./image.png]`);
-    process.exit(0);
-  }
-  let prompt = "";
-  let filePath: string | undefined;
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--file") filePath = args[++i];
-    else if (!args[i].startsWith("--")) prompt = args[i];
-  }
-
-  c.setSession(process.env.PW_SESSION || "yoursite");
-  if (!process.env.SKIP_ATTACH) {
-    c.attach();
-  }
-
-  try {
-    await plugin.init();
-    const result = await plugin.run(prompt, filePath);
-    console.log(`\n── 完成 ──\n耗时: ${(result.duration / 1000).toFixed(1)}s | 成功: ${result.success}`);
-    if (result.error) console.log(`错误: ${result.error}`);
-  } finally {
-    if (!process.env.SKIP_ATTACH) c.detach();
-  }
+  // 解析 --file 和 prompt 参数
+  // stdin 兜底读取 prompt
+  // attach → goto → upload → fillPrompt → clickSend → detach
 }
 
-if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, "/")}`) {
-  main().catch((err) => { console.error("异常:", err); process.exit(1); });
-}
+main().catch(err => { console.error("异常:", err); process.exit(1); });
 ```
 
-### 核心 API
+### 上传策略参考
 
-| API | 说明 |
-|-----|------|
-| `c.setSession(name)` | 设置 playwright-cli 会话名 |
-| `c.attach()` | 通过 Chrome 扩展连接浏览器 |
-| `c.detach()` | 断开连接 |
-| `c.goto(url)` | 导航到 URL |
-| `c.snapshot()` | 获取页面快照（返回带 ref 标记的元素树） |
-| `c.findByKeywords(els, keywords)` | 按关键词匹配快照元素 |
-| `c.fill(ref, text)` | 填充输入框 |
-| `c.click(ref)` | 点击元素 |
-| `c.press(key)` | 按键（如 Enter） |
-| `c.typeText(text)` | 键入文本（无目标元素） |
-| `c.upload(filePath)` | 上传文件 |
-| `c.evalJs(expr)` | 执行 JS 表达式 |
-| `c.sleep(ms)` | 异步等待 |
+不同站点的上传机制不同，以下是已验证的策略：
+
+| 站点 | 上传方式 |
+|------|----------|
+| 千问 | drop 事件 → `[data-slate-editor]` |
+| 元宝 | drop 事件 → `.ql-editor` |
+| chatglm | 点击 `.upload-image-btn` → 菜单 "本地文件选择" → setInputFiles |
+| grok | 点击 "附件" 按钮 → 菜单 "上传文件" → setInputFiles |
+| chatgpt/deepseek/kimi/doubao/gemini | drop 事件 → 通用编辑器选择器 |
 
 ### 调试技巧
 
@@ -238,46 +183,46 @@ if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, "/")}`) {
 # 独立运行脚本（直接连接浏览器，不经过 Electron）
 npx tsx src/sites/yoursite.ts "你好"
 
-# 快照模式（只看页面结构，不执行操作）
-npx tsx src/sites/yoursite.ts --discover
+# 通过 playwright-cli 手动调试
+playwright-cli attach --extension=chrome --session=yoursite
+playwright-cli -s=yoursite goto https://your-site.com
+playwright-cli -s=yoursite snapshot
+playwright-cli -s=yoursite click e5
+playwright-cli -s=yoursite detach
 ```
 
 ### 关键注意事项
 
-1. **关键词匹配**：`findByKeywords` 按数组顺序匹配，靠前的优先。避免用太泛的词（如 `"聊天"` 可能匹配到侧边栏），尽量用输入框的占位文本
+1. **关键词匹配**：避免用太泛的词（如 `"上传"` 可能匹配到侧边栏），尽量用输入框的占位文本
 2. **发送后不等待**：脚本发送消息后立即返回，不等待 AI 回复
-3. **`import.meta.url` 守卫**：必须用 `file:///`（三个斜杠），因为 Windows 路径 `C:\...` 转换后是 `file:///C:/...`
-4. **每个脚本独立 attach**：通过 `c.attach()` 自行连接浏览器，`cli.ts` 的文件锁保证多个脚本不会同时 attach
+3. **prompt 通过 stdin 传递**：runner.ts 用 stdin 传 prompt，避免 cmd.exe 特殊字符截断
+4. **每个脚本独立 attach**：各脚本自行连接浏览器，互不干扰
 
-## 关键设计决策与已知问题
+## 关键设计决策
 
 ### 1. 顺序执行
 
-多站点脚本按选择顺序依次执行，一个完成后再启动下一个。这是因为 Playwright Chrome 扩展同一时间只能处理一个连接。
+多站点脚本按选择顺序依次执行，一个完成后再启动下一个。Playwright Chrome 扩展同一时间只能处理一个连接。
 
-### 2. 文件锁序列化 attach
+### 2. stdin 传参
 
-`cli.ts` 使用临时文件锁（`os.tmpdir()/.playwright-cli-attach.lock`）保证多个进程不会同时调用 `attach --extension`。锁自动检测并清理僵尸进程创建的过期锁。
+runner.ts 通过 stdin 传递 prompt，避免 `cmd.exe` 中特殊字符（`&`、`|`、`"` 等）被 shell 截断。
 
-### 3. 为什么不用 Electron 内置 Node 执行脚本
+### 3. 每个脚本完全独立
+
+不依赖共享模块（cli.ts），修改一个站点不影响其他站点。每个脚本内联 playwright-cli 封装函数。
+
+### 4. 为什么不用 Electron 内置 Node 执行脚本
 
 Electron 的 `process.execPath` 不支持 `--import` ESM loader hook，`node --import tsx/esm script.ts` 会静默挂起。因此改用系统安装的 `node` + `node_modules/tsx/dist/cli.mjs`。
 
-### 4. 为什么不用 tsx.cmd
+### 5. 为什么不用 tsx.cmd
 
 Windows 上 `npx tsx` 或 `tsx.cmd` 是 batch wrapper，作为子进程 spawn 时会立即返回 exit code 0（假成功）。解决方案是直接调用 `node node_modules/tsx/dist/cli.mjs`。
-
-### 5. import.meta.url 守卫
-
-tsx/esm loader 下 `import.meta.url` 返回 `file:///C:/...`（三个斜杠），守卫条件必须用 `` `file:///${process.argv[1].replace(/\\/g, "/")}` `` 匹配。
 
 ### 6. Windows 中文编码
 
 `cmd.exe` 默认使用 GBK 编码，中文输出会乱码。runner 在 Windows 上的命令前拼接 `chcp 65001 >nul &&` 切换到 UTF-8。
-
-### 7. Windows 路径引号嵌套
-
-`cmd.exe /c` 中嵌套绝对路径 + 双引号会导致模块找不到。使用 `path.relative()` 将路径转为相对路径（CWD 为项目根目录）来规避。
 
 ## 前置要求
 

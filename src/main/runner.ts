@@ -31,7 +31,6 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
   const scriptArgs: string[] = [
     tsxCli,
     opts.scriptPath,
-    opts.prompt,
   ];
 
   if (opts.filePath) {
@@ -43,7 +42,7 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
     // 使用相对路径避免引号问题（CWD 是项目根目录）
     const relativeTsxCli = path.relative(projectRoot, tsxCli);
     const relativeScript = path.relative(projectRoot, opts.scriptPath);
-    let cmd = `chcp 65001 >nul && node ${relativeTsxCli} ${relativeScript} "${opts.prompt}"`;
+    let cmd = `chcp 65001 >nul && node ${relativeTsxCli} ${relativeScript}`;
     if (opts.filePath) {
       cmd += ` --file "${opts.filePath}"`;
     }
@@ -53,6 +52,12 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
       stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true,
     });
+
+    // 通过 stdin 传递 prompt，避免 cmd.exe 特殊字符截断
+    if (child.stdin) {
+      child.stdin.write(opts.prompt);
+      child.stdin.end();
+    }
 
     child.stdout?.on('data', (data: Buffer) => {
       callbacks.onStdout?.(data.toString());
@@ -78,6 +83,12 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
       env: { ...process.env, PW_SESSION: opts.session },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+
+    // 通过 stdin 传递 prompt
+    if (child.stdin) {
+      child.stdin.write(opts.prompt);
+      child.stdin.end();
+    }
 
     child.stdout?.on('data', (data: Buffer) => {
       callbacks.onStdout?.(data.toString());
