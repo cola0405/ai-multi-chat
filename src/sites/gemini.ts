@@ -1,8 +1,8 @@
 /**
- * Gemini (gemini.google.com) — 完全独立脚本
+ * Google Gemini (gemini.google.com) — 完全独立脚本
  *
  * 运行:
- *   npx tsx src/sites/gemini.ts "你好"
+ *   npx tsx src/sites/gemini.ts "Hello"
  *   npx tsx src/sites/gemini.ts "分析图片" --file ./test.png
  */
 
@@ -72,16 +72,16 @@ async function readStdin(): Promise<string> {
 }
 
 // ─── 站点配置 ──────────────────────────────────────────
-const URL = "https://gemini.google.com";
+const URL = "https://gemini.google.com/app";
 const KW = {
-  input: ["textbox", "textarea", "contenteditable", "Enter a prompt", "Ask Gemini"],
-  send: ["send", "submit", "arrow-up", "Send"],
-  stop: ["stop", "Stop"],
+  input: ["textbox", "prompt", "textarea", "contenteditable", "enter a prompt", "ask anything", "ask gemini", "input"],
+  send: ["send message", "send", "submit", "提交", "发送"],
+  newChat: ["new chat", "新对话", "新聊天", "clear", "reset"],
 };
 
 function log(...args: unknown[]) { console.log("[gemini]", ...args); }
 
-// ─── 上传附件（drop 事件 → contenteditable / .ql-editor / textarea）────
+// ─── 上传附件 ─────────────────────────────────────────
 async function upload(filePath: string) {
   const abs = path.resolve(filePath);
   if (!fs.existsSync(abs)) throw new Error(`附件不存在: ${abs}`);
@@ -92,18 +92,40 @@ async function upload(filePath: string) {
   const mime: Record<string, string> = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp", ".pdf": "application/pdf", ".txt": "text/plain" };
   const m = mime[ext] || "application/octet-stream";
   const r = runCode(`async page => {
+    const pos = await page.evaluate(() => {
+      const vh = window.innerHeight;
+      const btns = document.querySelectorAll('button');
+      for (const b of btns) {
+        const r = b.getBoundingClientRect();
+        if (r.width > 0 && r.width < 42 && r.height < 42
+            && !(b.textContent || '').trim()
+            && b.querySelector('svg')
+            && r.y > vh * 0.5) {
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+        }
+      }
+      return null;
+    });
+    if (!pos) return 'plus-button-not-found';
+    await page.mouse.click(pos.x, pos.y);
+    await page.waitForTimeout(1000);
+    try {
+      await page.locator('input[type="file"]').waitFor({ state: 'attached', timeout: 5000 });
+    } catch { return 'file-input-not-found'; }
     return await page.evaluate(({b64:b,name:n,mime:m}) => {
       const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
       const file = new File([bytes], n, {type:m});
       const dt = new DataTransfer(); dt.items.add(file);
-      const ed = document.querySelector('[contenteditable="true"], .ql-editor, textarea');
-      if (!ed) return 'no-editor';
-      ed.dispatchEvent(new DragEvent('dragover',{dataTransfer:dt,bubbles:true,cancelable:true}));
-      ed.dispatchEvent(new DragEvent('drop',{dataTransfer:dt,bubbles:true,cancelable:true}));
-      return 'dropped:'+file.name;
+      const inp = document.querySelector('input[type=file]');
+      if (!inp) return 'no-input';
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set;
+      setter.call(inp, dt.files);
+      inp.dispatchEvent(new Event('change', {bubbles:true}));
+      return 'uploaded:' + file.name;
     },{b64:'${b64}',name:'${name}',mime:'${m}'});
   }`);
   log(`上传结果: ${r}`);
+  if (!r.includes('uploaded:')) throw new Error(`上传失败: ${r}`);
   await sleep(2000);
 }
 
@@ -119,6 +141,7 @@ async function fillPrompt(text: string) {
 
 // ─── 点击发送 ─────────────────────────────────────────
 async function clickSend() {
+  await sleep(500);
   const snap = snapshot();
   const ref = find(snap, KW.send);
   if (ref) { click(ref); log(`点击发送: ${ref}`); }
@@ -126,10 +149,52 @@ async function clickSend() {
   await sleep(800);
 }
 
-// ─── 主流程 ───────────────────────────────────────────
+// ─── 插件导出（供 Electron 主进程调用） ────────────────
+export const plugin = {
+  name: "gemini",
+  url: URL,
+
+  async init() {
+    log(`导航到 ${URL}`);
+    goto(URL);
+    await sleep(3000);
+    log("就绪");
+  },
+
+  async run(prompt: string, attachment?: string) {
+    const startTime = Date.now();
+    const result = { prompt, attachment, response: "", timestamp: new Date().toISOString(), duration: 0, success: false, error: undefined as string | undefined };
+    try {
+      if (attachment) await upload(attachment);
+      await fillPrompt(prompt);
+      await clickSend();
+      log("已发送");
+      result.success = true;
+    } catch (err) {
+      result.error = err instanceof Error ? err.message : String(err);
+      log(`失败: ${result.error}`);
+    }
+    result.duration = Date.now() - startTime;
+    return result;
+  },
+
+  async newChat() {
+    log("新对话...");
+    const snap = snapshot();
+    const ref = find(snap, KW.newChat);
+    if (ref) { click(ref); await sleep(2000); return; }
+    goto(URL);
+    await sleep(3000);
+  },
+};
+
+// ─── 独立运行入口 ──────────────────────────────────────
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length === 0) { console.log('用法: npx tsx src/sites/gemini.ts "提示词" [--file ./img.png]'); process.exit(0); }
+  if (args.length === 0) {
+    console.log(`用法: npx tsx src/sites/gemini.ts "提示词" [--file ./img.png]`);
+    process.exit(0);
+  }
 
   let prompt = "", filePath: string | undefined;
   for (let i = 0; i < args.length; i++) {

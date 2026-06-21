@@ -23,7 +23,6 @@ export interface RunCallbacks {
  */
 export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildProcess {
   const projectRoot = opts.cwd || app.getAppPath();
-  const isWindows = process.platform === 'win32';
 
   // 用系统 node 运行 tsx 的 CLI 入口（避免 tsx.cmd batch wrapper 的问题）
   const tsxCli = path.join(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs');
@@ -31,83 +30,39 @@ export function runSiteScript(opts: RunOptions, callbacks: RunCallbacks): ChildP
   const scriptArgs: string[] = [
     tsxCli,
     opts.scriptPath,
+    opts.prompt,
   ];
 
   if (opts.filePath) {
     scriptArgs.push('--file', opts.filePath);
   }
 
-  if (isWindows) {
-    // Windows: 用 chcp 65001 切换到 UTF-8 编码，解决中文乱码
-    // 使用相对路径避免引号问题（CWD 是项目根目录）
-    const relativeTsxCli = path.relative(projectRoot, tsxCli);
-    const relativeScript = path.relative(projectRoot, opts.scriptPath);
-    let cmd = `chcp 65001 >nul && node ${relativeTsxCli} ${relativeScript}`;
-    if (opts.filePath) {
-      cmd += ` --file "${opts.filePath}"`;
-    }
-    const child = spawn('cmd.exe', ['/c', cmd], {
-      cwd: projectRoot,
-      env: { ...process.env, PW_SESSION: opts.session },
-      stdio: ['pipe', 'pipe', 'pipe'],
-      windowsHide: true,
-    });
+  // 直接 spawn node，用数组传参，绕过 shell 引号解析，彻底解决空格截断问题
+  const child = spawn('node', scriptArgs, {
+    cwd: projectRoot,
+    env: { ...process.env, PW_SESSION: opts.session },
+    stdio: ['pipe', 'pipe', 'pipe'],
+    windowsHide: true,
+    shell: false,
+  });
 
-    // 通过 stdin 传递 prompt，避免 cmd.exe 特殊字符截断
-    if (child.stdin) {
-      child.stdin.write(opts.prompt);
-      child.stdin.end();
-    }
+  child.stdout?.on('data', (data: Buffer) => {
+    callbacks.onStdout?.(data.toString());
+  });
 
-    child.stdout?.on('data', (data: Buffer) => {
-      callbacks.onStdout?.(data.toString());
-    });
+  child.stderr?.on('data', (data: Buffer) => {
+    callbacks.onStderr?.(data.toString());
+  });
 
-    child.stderr?.on('data', (data: Buffer) => {
-      callbacks.onStderr?.(data.toString());
-    });
+  child.on('exit', (code) => {
+    callbacks.onExit?.(code);
+  });
 
-    child.on('exit', (code) => {
-      callbacks.onExit?.(code);
-    });
+  child.on('error', (err) => {
+    callbacks.onError?.(err);
+  });
 
-    child.on('error', (err) => {
-      callbacks.onError?.(err);
-    });
-
-    return child;
-  } else {
-    // macOS/Linux: 直接用 node
-    const child = spawn('node', scriptArgs, {
-      cwd: projectRoot,
-      env: { ...process.env, PW_SESSION: opts.session },
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    // 通过 stdin 传递 prompt
-    if (child.stdin) {
-      child.stdin.write(opts.prompt);
-      child.stdin.end();
-    }
-
-    child.stdout?.on('data', (data: Buffer) => {
-      callbacks.onStdout?.(data.toString());
-    });
-
-    child.stderr?.on('data', (data: Buffer) => {
-      callbacks.onStderr?.(data.toString());
-    });
-
-    child.on('exit', (code) => {
-      callbacks.onExit?.(code);
-    });
-
-    child.on('error', (err) => {
-      callbacks.onError?.(err);
-    });
-
-    return child;
-  }
+  return child;
 }
 
 /**

@@ -72,16 +72,16 @@ async function readStdin(): Promise<string> {
 }
 
 // ─── 站点配置 ──────────────────────────────────────────
-const URL = "https://www.doubao.com";
+const URL = "https://www.doubao.com/chat/";
 const KW = {
-  input: ["textbox", "textarea", "contenteditable", "输入", "给豆包发消息"],
+  input: ["textbox", "textarea", "contenteditable", "输入", "聊天"],
   send: ["发送", "send", "submit", "arrow-up"],
   stop: ["停止", "stop"],
 };
 
 function log(...args: unknown[]) { console.log("[doubao]", ...args); }
 
-// ─── 上传附件（定位坐标 → mouse.click → native setter 设文件）────
+// ─── 上传附件 ─────────────────────────────────────────
 async function upload(filePath: string) {
   const abs = path.resolve(filePath);
   if (!fs.existsSync(abs)) throw new Error(`附件不存在: ${abs}`);
@@ -92,7 +92,6 @@ async function upload(filePath: string) {
   const mime: Record<string, string> = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp", ".pdf": "application/pdf", ".txt": "text/plain" };
   const m = mime[ext] || "application/octet-stream";
   const r = runCode(`async page => {
-    // 1. 在页面中找到 + 按钮并获取其中心坐标
     const pos = await page.evaluate(() => {
       const vh = window.innerHeight;
       const btns = document.querySelectorAll('button');
@@ -108,17 +107,11 @@ async function upload(filePath: string) {
       return null;
     });
     if (!pos) return 'plus-button-not-found';
-
-    // 2. 用 Playwright 原生鼠标点击（确保 React 事件正确派发）
     await page.mouse.click(pos.x, pos.y);
     await page.waitForTimeout(1000);
-
-    // 3. 等待 file input 出现
     try {
       await page.locator('input[type="file"]').waitFor({ state: 'attached', timeout: 5000 });
     } catch { return 'file-input-not-found'; }
-
-    // 4. 在浏览器内构造 File 对象，用原生 setter 设置并触发 change
     return await page.evaluate(({b64:b,name:n,mime:m}) => {
       const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
       const file = new File([bytes], n, {type:m});
@@ -155,10 +148,49 @@ async function clickSend() {
   await sleep(800);
 }
 
-// ─── 主流程 ───────────────────────────────────────────
+// ─── 插件导出（供 Electron 主进程调用） ────────────────
+export const plugin = {
+  name: "doubao",
+  url: URL,
+
+  async init() {
+    log(`导航到 ${URL}`);
+    goto(URL);
+    await sleep(3000);
+    log("就绪");
+  },
+
+  async run(prompt: string, attachment?: string) {
+    const startTime = Date.now();
+    const result = { prompt, attachment, response: "", timestamp: new Date().toISOString(), duration: 0, success: false, error: undefined as string | undefined };
+    try {
+      if (attachment) await upload(attachment);
+      await fillPrompt(prompt);
+      await clickSend();
+      log("已发送");
+      result.success = true;
+    } catch (err) {
+      result.error = err instanceof Error ? err.message : String(err);
+      log(`失败: ${result.error}`);
+    }
+    result.duration = Date.now() - startTime;
+    return result;
+  },
+
+  async newChat() {
+    log("新对话...");
+    goto(URL);
+    await sleep(3000);
+  },
+};
+
+// ─── 独立运行入口 ──────────────────────────────────────
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length === 0) { console.log('用法: npx tsx src/sites/doubao.ts "提示词" [--file ./img.png]'); process.exit(0); }
+  if (args.length === 0) {
+    console.log(`用法: npx tsx src/sites/doubao.ts "提示词" [--file ./img.png]`);
+    process.exit(0);
+  }
 
   let prompt = "", filePath: string | undefined;
   for (let i = 0; i < args.length; i++) {
@@ -175,12 +207,7 @@ async function main() {
 
   try {
     goto(URL); await sleep(3000); log("就绪");
-    log(`filePath: ${filePath}`);
-    if (filePath) {
-      log("开始上传文件...");
-      await upload(filePath);
-      log("文件上传完成");
-    }
+    if (filePath) await upload(filePath);
     await fillPrompt(prompt);
     await clickSend();
     log("已发送");

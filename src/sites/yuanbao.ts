@@ -74,12 +74,14 @@ async function readStdin(): Promise<string> {
 // ─── 站点配置 ──────────────────────────────────────────
 const URL = "https://yuanbao.tencent.com";
 const KW = {
-  input: ["有问题，尽管问", "给元宝发消息", "shift+enter换行"],
+  input: ["有问题，尽管问", "问点什么", "给元宝发消息", "请输入", "shift+enter换行", "contenteditable", "textbox", "textarea"],
+  send: ["发送", "send", "submit", "提交", "arrow-up", "ArrowUp"],
+  newChat: ["新对话", "新聊天", "new chat", "new-chat", "新建对话", "开启新对话"],
 };
 
 function log(...args: unknown[]) { console.log("[yuanbao]", ...args); }
 
-// ─── 上传附件（drop 事件 → ql-editor）──────────────────
+// ─── 上传附件（drop 事件 → Quill 编辑器）──────────────
 async function upload(filePath: string) {
   const abs = path.resolve(filePath);
   if (!fs.existsSync(abs)) throw new Error(`附件不存在: ${abs}`);
@@ -115,17 +117,61 @@ async function fillPrompt(text: string) {
   await sleep(800);
 }
 
-// ─── 点击发送（始终按 Enter）──────────────────────────
+// ─── 点击发送 ─────────────────────────────────────────
 async function clickSend() {
-  press("Enter");
-  log("按 Enter 发送");
+  const snap = snapshot();
+  const ref = find(snap, KW.send);
+  if (ref) { click(ref); log(`点击发送: ${ref}`); }
+  else { press("Enter"); log("按 Enter 发送"); }
   await sleep(800);
 }
 
-// ─── 主流程 ───────────────────────────────────────────
+// ─── 插件导出（供 Electron 主进程调用） ────────────────
+export const plugin = {
+  name: "yuanbao",
+  url: URL,
+
+  async init() {
+    log(`导航到 ${URL}`);
+    goto(URL);
+    await sleep(3000);
+    log("就绪");
+  },
+
+  async run(prompt: string, attachment?: string) {
+    const startTime = Date.now();
+    const result = { prompt, attachment, response: "", timestamp: new Date().toISOString(), duration: 0, success: false, error: undefined as string | undefined };
+    try {
+      if (attachment) await upload(attachment);
+      await fillPrompt(prompt);
+      await clickSend();
+      log("已发送");
+      result.success = true;
+    } catch (err) {
+      result.error = err instanceof Error ? err.message : String(err);
+      log(`失败: ${result.error}`);
+    }
+    result.duration = Date.now() - startTime;
+    return result;
+  },
+
+  async newChat() {
+    log("新对话...");
+    const snap = snapshot();
+    const ref = find(snap, KW.newChat);
+    if (ref) { click(ref); await sleep(2000); return; }
+    goto(URL);
+    await sleep(3000);
+  },
+};
+
+// ─── 独立运行入口 ──────────────────────────────────────
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length === 0) { console.log('用法: npx tsx src/sites/yuanbao.ts "提示词" [--file ./img.png]'); process.exit(0); }
+  if (args.length === 0) {
+    console.log(`用法: npx tsx src/sites/yuanbao.ts "提示词" [--file ./img.png]`);
+    process.exit(0);
+  }
 
   let prompt = "", filePath: string | undefined;
   for (let i = 0; i < args.length; i++) {

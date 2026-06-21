@@ -2,7 +2,7 @@
  * ChatGPT (chatgpt.com) — 完全独立脚本
  *
  * 运行:
- *   npx tsx src/sites/chatgpt.ts "你好"
+ *   npx tsx src/sites/chatgpt.ts "Hello"
  *   npx tsx src/sites/chatgpt.ts "分析图片" --file ./test.png
  */
 
@@ -74,9 +74,9 @@ async function readStdin(): Promise<string> {
 // ─── 站点配置 ──────────────────────────────────────────
 const URL = "https://chatgpt.com";
 const KW = {
-  input: ["textbox", "textarea", "contenteditable", "Message ChatGPT", "Ask anything"],
-  send: ["send", "submit", "arrow-up", "Send"],
-  stop: ["stop", "Stop", "停止"],
+  input: ["textbox", "textarea", "contenteditable", "prompt", "input", "enter a prompt", "message", "send a message", "chat"],
+  send: ["send", "submit", "发送", "提交", "arrow-up", "ArrowUp", "send message"],
+  newChat: ["new chat", "新对话", "新聊天", "clear", "reset", "new"],
 };
 
 function log(...args: unknown[]) { console.log("[chatgpt]", ...args); }
@@ -119,6 +119,7 @@ async function fillPrompt(text: string) {
 
 // ─── 点击发送 ─────────────────────────────────────────
 async function clickSend() {
+  await sleep(500);
   const snap = snapshot();
   const ref = find(snap, KW.send);
   if (ref) { click(ref); log(`点击发送: ${ref}`); }
@@ -126,10 +127,52 @@ async function clickSend() {
   await sleep(800);
 }
 
-// ─── 主流程 ───────────────────────────────────────────
+// ─── 插件导出（供 Electron 主进程调用） ────────────────
+export const plugin = {
+  name: "chatgpt",
+  url: URL,
+
+  async init() {
+    log(`导航到 ${URL}`);
+    goto(URL);
+    await sleep(3000);
+    log("就绪");
+  },
+
+  async run(prompt: string, attachment?: string) {
+    const startTime = Date.now();
+    const result = { prompt, attachment, response: "", timestamp: new Date().toISOString(), duration: 0, success: false, error: undefined as string | undefined };
+    try {
+      if (attachment) await upload(attachment);
+      await fillPrompt(prompt);
+      await clickSend();
+      log("已发送");
+      result.success = true;
+    } catch (err) {
+      result.error = err instanceof Error ? err.message : String(err);
+      log(`失败: ${result.error}`);
+    }
+    result.duration = Date.now() - startTime;
+    return result;
+  },
+
+  async newChat() {
+    log("新对话...");
+    const snap = snapshot();
+    const ref = find(snap, KW.newChat);
+    if (ref) { click(ref); await sleep(2000); return; }
+    goto(URL);
+    await sleep(3000);
+  },
+};
+
+// ─── 独立运行入口 ──────────────────────────────────────
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length === 0) { console.log('用法: npx tsx src/sites/chatgpt.ts "提示词" [--file ./img.png]'); process.exit(0); }
+  if (args.length === 0) {
+    console.log(`用法: npx tsx src/sites/chatgpt.ts "提示词" [--file ./img.png]`);
+    process.exit(0);
+  }
 
   let prompt = "", filePath: string | undefined;
   for (let i = 0; i < args.length; i++) {

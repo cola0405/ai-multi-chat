@@ -78,7 +78,7 @@ function ensureAttached() {
   _attached = true;
   _attachPromise = new Promise<void>((resolve, reject) => {
     acquireLock();
-    const cmd = `playwright-cli attach --extension=chrome --session=${_session}`;
+    const cmd = `playwright-cli attach --extension --session=${_session}`;
     exec(cmd, { encoding: 'utf-8', timeout: 60_000 }, (err, stdout, stderr) => {
       releaseLock();
       if (err) {
@@ -140,7 +140,7 @@ export function open(url?: string) {
     execSync(`playwright-cli -s=${_session} detach`, { encoding: 'utf-8', timeout: 5_000, stdio: 'pipe' });
   } catch { /* */ }
 
-  const attachCmd = `playwright-cli attach --extension=chrome --session=${_session}`;
+  const attachCmd = `playwright-cli attach --extension --session=${_session}`;
   acquireLock();
   try {
     let lastErr: unknown;
@@ -236,67 +236,76 @@ export function click(ref: string) {
 }
 
 export function typeText(text: string) {
-  // insertText 一次性插入整个文本，对 contenteditable (Slate/Quill) 比 type 逐字输入更可靠
-  const escaped = text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/`/g, '\\`');
-  const code = `async page => {
-    await page.keyboard.insertText('${escaped}');
-    // 触发 input 事件让 React/Quill/Slate 更新内部状态
-    await page.evaluate(() => {
-      const el = document.activeElement;
-      if (el) el.dispatchEvent(new Event('input', { bubbles: true }));
-    });
-  }`;
-  const codeFile = path.join(process.cwd(), '.playwright-cli', '.type.js');
-  fs.writeFileSync(codeFile, code, 'utf-8');
-  try {
-    cli(`run-code --filename="${codeFile}"`);
-  } finally {
-    try { fs.unlinkSync(codeFile); } catch { /* */ }
-  }
+  cli(`type "${text}"`);
 }
 
 export function press(key: string) {
   cli(`press ${key}`);
 }
 
-// ─── 运行 Playwright 代码 ─────────────────────────────
-export function runPageCode(code: string): string {
-  const codeFile = path.join(process.cwd(), '.playwright-cli', '.run.js');
+/**
+ * 上传文件到当前页面。
+ * 自动处理：检查 file input → 点击上传按钮 → 点击菜单项 → 设置文件。
+ * 站点脚本只需调用 c.upload(filePath) 即可。
+ */
+export function upload(filePath: string) {
+  const absPath = path.resolve(filePath);
+  const b64 = fs.readFileSync(absPath).toString('base64');
+  const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  const ext = path.extname(absPath).toLowerCase();
+  const mimeMap: Record<string, string> = {
+    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+    '.gif': 'image/gif', '.webp': 'image/webp', '.pdf': 'application/pdf',
+    '.txt': 'text/plain', '.csv': 'text/csv', '.json': 'application/json',
+  };
+  const m = mimeMap[ext] || 'application/octet-stream';
+  const code = `async page => {
+    const pos = await page.evaluate(() => {
+      const vh = window.innerHeight;
+      const btns = document.querySelectorAll('button');
+      for (const b of btns) {
+        const r = b.getBoundingClientRect();
+        if (r.width > 0 && r.width < 42 && r.height < 42
+            && !(b.textContent || '').trim()
+            && b.querySelector('svg')
+            && r.y > vh * 0.5) {
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+        }
+      }
+      return null;
+    });
+    if (!pos) return 'plus-button-not-found';
+    await page.mouse.click(pos.x, pos.y);
+    await page.waitForTimeout(1000);
+    try {
+      await page.locator('input[type="file"]').waitFor({ state: 'attached', timeout: 5000 });
+    } catch { return 'file-input-not-found'; }
+    return await page.evaluate(({b64:b,name:n,mime:m}) => {
+      const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+      const file = new File([bytes], n, {type:m});
+      const dt = new DataTransfer(); dt.items.add(file);
+      const inp = document.querySelector('input[type=file]');
+      if (!inp) return 'no-input';
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set;
+      setter.call(inp, dt.files);
+      inp.dispatchEvent(new Event('change', {bubbles:true}));
+      return 'uploaded:' + file.name;
+    },{b64:'${b64}',name:'${name}',mime:'${m}'});
+  }`;
+  const codeFile = path.join(process.cwd(), '.playwright-cli', '.upload-code.js');
   fs.mkdirSync(path.dirname(codeFile), { recursive: true });
   fs.writeFileSync(codeFile, code, 'utf-8');
   try {
-    return cli(`run-code --filename="${codeFile}"`);
+    const result = cli(`run-code --filename="${codeFile}"`);
+    if (!result.includes('uploaded:')) throw new Error(result);
+    return result;
   } finally {
     try { fs.unlinkSync(codeFile); } catch { /* */ }
   }
 }
 
-// ─── 文件读取工具 ──────────────────────────────────────
-export interface FilePayload {
-  absPath: string;
-  b64: string;
-  name: string;
-  mime: string;
-  ext: string;
-}
-
-export function filePayload(filePath: string): FilePayload {
-  const absPath = path.resolve(filePath);
-  const content = fs.readFileSync(absPath);
-  const ext = path.extname(absPath).toLowerCase();
-  const mimeMap: Record<string, string> = {
-    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
-    '.gif': 'image/gif', '.webp': 'image/webp', '.bmp': 'image/bmp',
-    '.svg': 'image/svg+xml', '.pdf': 'application/pdf',
-    '.txt': 'text/plain', '.csv': 'text/csv', '.json': 'application/json',
-  };
-  return {
-    absPath,
-    b64: content.toString('base64'),
-    name: path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"'),
-    mime: mimeMap[ext] || 'application/octet-stream',
-    ext,
-  };
+export function drop(ref: string, filePath: string) {
+  upload(filePath);
 }
 
 // ─── 提取文本 ──────────────────────────────────────────
@@ -323,16 +332,4 @@ export function sleep(ms: number): Promise<void> {
 
 function escapeStr(text: string): string {
   return text.replace(/\\/g, '\\\\');
-}
-
-// ─── stdin 读取（runner 通过 stdin 传递 prompt） ────────
-export async function readStdin(): Promise<string> {
-  return new Promise((resolve) => {
-    let data = '';
-    process.stdin.setEncoding('utf-8');
-    process.stdin.on('data', (chunk: string) => { data += chunk; });
-    process.stdin.on('end', () => resolve(data.trim()));
-    // 如果 stdin 已经结束（没有管道数据），立即返回空
-    if (process.stdin.isTTY) resolve('');
-  });
 }
