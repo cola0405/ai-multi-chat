@@ -56,8 +56,35 @@ function find(els: Snap[], kws: string[]): string | null {
 
 function click(ref: string) { pw(`click ${ref}`); }
 function typeText(text: string) {
-  const esc = text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/`/g, "\\`");
-  runCode(`async page => { await page.keyboard.insertText('${esc}'); await page.evaluate(() => { const el = document.activeElement; if (el) el.dispatchEvent(new Event('input', { bubbles: true })); }); }`);
+  const jsonText = JSON.stringify(text);
+  runCode(`async page => {
+    await page.evaluate(() => {
+      let el = document.activeElement;
+      if (!el || (!el.isContentEditable && el.tagName !== 'TEXTAREA' && el.tagName !== 'INPUT')) {
+        el = document.querySelector('[contenteditable="true"]')
+          || document.querySelector('textarea')
+          || document.querySelector('[role="textbox"]');
+      }
+      if (el) {
+        el.focus();
+        if (el.isContentEditable) {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    });
+    await page.waitForTimeout(200);
+    const ok = await page.evaluate((t) => document.execCommand('insertText', false, t), ${jsonText});
+    if (!ok) await page.keyboard.insertText(${jsonText});
+    await page.evaluate(() => {
+      const el = document.activeElement;
+      if (el) el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }`);
 }
 function press(key: string) { pw(`press ${key}`); }
 function evalJs(expr: string): string { return pw(`--raw eval "${expr.replace(/\\/g, "\\\\")}"`, 30_000); }
@@ -138,6 +165,10 @@ async function fillPrompt(text: string) {
   typeText(text);
   log(`已输入 (${text.length} 字)`);
   await sleep(800);
+  // 再次点击输入框确保焦点
+  const snap2 = snapshot();
+  const ref2 = find(snap2, KW.input);
+  if (ref2) { click(ref2); await sleep(300); }
 }
 
 // ─── 点击发送 ─────────────────────────────────────────
@@ -167,7 +198,7 @@ export const plugin = {
     try {
       if (attachment) await upload(attachment);
       await fillPrompt(prompt);
-      await clickSend();
+      press("Enter");
       log("已发送");
       result.success = true;
     } catch (err) {
@@ -213,7 +244,7 @@ async function main() {
     goto(URL); await sleep(3000); log("就绪");
     if (filePath) await upload(filePath);
     await fillPrompt(prompt);
-    await clickSend();
+    press("Enter");
     log("已发送");
   } finally {
     if (!process.env.SKIP_ATTACH) detach();

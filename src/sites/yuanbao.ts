@@ -53,11 +53,48 @@ function find(els: Snap[], kws: string[]): string | null {
   for (const kw of kws) for (const el of els) if (el.lower.includes(kw.toLowerCase())) return el.ref;
   return null;
 }
+function findButton(els: Snap[], kws: string[]): string | null {
+  for (const kw of kws) {
+    for (const el of els) {
+      if (el.lower.includes(kw.toLowerCase()) && el.lower.includes('button')) {
+        return el.ref;
+      }
+    }
+  }
+  return null;
+}
 
 function click(ref: string) { pw(`click ${ref}`); }
 function typeText(text: string) {
-  const esc = text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/`/g, "\\`");
-  runCode(`async page => { await page.keyboard.insertText('${esc}'); await page.evaluate(() => { const el = document.activeElement; if (el) el.dispatchEvent(new Event('input', { bubbles: true })); }); }`);
+  const jsonText = JSON.stringify(text);
+  runCode(`async page => {
+    await page.evaluate(() => {
+      let el = document.activeElement;
+      if (!el || (!el.isContentEditable && el.tagName !== 'TEXTAREA' && el.tagName !== 'INPUT')) {
+        el = document.querySelector('[contenteditable="true"]')
+          || document.querySelector('textarea')
+          || document.querySelector('[role="textbox"]');
+      }
+      if (el) {
+        el.focus();
+        if (el.isContentEditable) {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    });
+    await page.waitForTimeout(200);
+    const ok = await page.evaluate((t) => document.execCommand('insertText', false, t), ${jsonText});
+    if (!ok) await page.keyboard.insertText(${jsonText});
+    await page.evaluate(() => {
+      const el = document.activeElement;
+      if (el) el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }`);
 }
 function press(key: string) { pw(`press ${key}`); }
 function evalJs(expr: string): string { return pw(`--raw eval "${expr.replace(/\\/g, "\\\\")}"`, 30_000); }
@@ -118,11 +155,24 @@ async function fillPrompt(text: string) {
 }
 
 // ─── 点击发送 ─────────────────────────────────────────
+function clickSendButton(): boolean {
+  const r = evalJs(`(() => {
+    const btn = document.getElementById('yuanbao-send-btn') || document.querySelector('.style__send-btn___RwTm5');
+    if (btn) { btn.click(); return 'clicked'; }
+    return 'not-found';
+  })()`);
+  log(`点击发送按钮: ${r}`);
+  return r === 'clicked';
+}
+
 async function clickSend() {
-  const snap = snapshot();
-  const ref = find(snap, KW.send);
-  if (ref) { click(ref); log(`点击发送: ${ref}`); }
-  else { press("Enter"); log("按 Enter 发送"); }
+  if (clickSendButton()) {
+    await sleep(800);
+    return;
+  }
+  // 直接按 Enter
+  press("Enter");
+  log("按 Enter 发送");
   await sleep(800);
 }
 
