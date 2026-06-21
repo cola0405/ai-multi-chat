@@ -134,7 +134,7 @@ function goto(url: string) { pw(`goto ${url}`); }
 function snapshot() { /* 解析 playwright-cli snapshot 输出 */ }
 function find(els, kws) { /* 关键词匹配 */ }
 function click(ref: string) { pw(`click ${ref}`); }
-function typeText(text: string) { /* insertText + input 事件 */ }
+function typeText(text: string) { /* 聚焦编辑器 → execCommand('insertText') → input 事件 */ }
 function press(key: string) { pw(`press ${key}`); }
 function evalJs(expr: string): string { /* ... */ }
 async function readStdin(): Promise<string> { /* ... */ }
@@ -152,14 +152,14 @@ async function upload(filePath: string) {
   // 站点特定的上传逻辑（drop 事件 / 点击按钮+菜单 / setInputFiles 等）
 }
 
-async function fillPrompt(text: string) { /* 找输入框 → 点击 → 输入 */ }
-async function clickSend() { /* 找发送按钮 → 点击或 Enter */ }
+async function fillPrompt(text: string) { /* 找输入框 → 点击 → typeText */ }
+async function clickSend() { /* 找发送按钮 → 点击 */ }
 
 async function main() {
   const args = process.argv.slice(2);
   // 解析 --file 和 prompt 参数
   // stdin 兜底读取 prompt
-  // attach → goto → upload → fillPrompt → clickSend → detach
+  // attach → goto → upload → fillPrompt → send → detach
 }
 
 main().catch(err => { console.error("异常:", err); process.exit(1); });
@@ -176,6 +176,15 @@ main().catch(err => { console.error("异常:", err); process.exit(1); });
 | chatglm | 点击 `.upload-image-btn` → 菜单 "本地文件选择" → setInputFiles |
 | grok | 点击 "附件" 按钮 → 菜单 "上传文件" → setInputFiles |
 | chatgpt/deepseek/kimi/doubao/gemini | drop 事件 → 通用编辑器选择器 |
+
+### 发送策略
+
+部分站点使用 `clickSend()`（点击发送按钮），部分直接 `press("Enter")`：
+
+| 站点 | 发送方式 |
+|------|----------|
+| chatgpt, gemini, yuanbao, grok | `clickSend()` 点击发送按钮 |
+| doubao, kimi, qianwen, chatglm, deepseek | `press("Enter")` |
 
 ### 调试技巧
 
