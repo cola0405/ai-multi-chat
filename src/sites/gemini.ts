@@ -56,8 +56,35 @@ function find(els: Snap[], kws: string[]): string | null {
 
 function click(ref: string) { pw(`click ${ref}`); }
 function typeText(text: string) {
-  const esc = text.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/`/g, "\\`");
-  runCode(`async page => { await page.keyboard.insertText('${esc}'); await page.evaluate(() => { const el = document.activeElement; if (el) el.dispatchEvent(new Event('input', { bubbles: true })); }); }`);
+  const jsonText = JSON.stringify(text);
+  runCode(`async page => {
+    await page.evaluate(() => {
+      let el = document.activeElement;
+      if (!el || (!el.isContentEditable && el.tagName !== 'TEXTAREA' && el.tagName !== 'INPUT')) {
+        el = document.querySelector('[contenteditable="true"]')
+          || document.querySelector('textarea')
+          || document.querySelector('[role="textbox"]');
+      }
+      if (el) {
+        el.focus();
+        if (el.isContentEditable) {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    });
+    await page.waitForTimeout(200);
+    const ok = await page.evaluate((t) => document.execCommand('insertText', false, t), ${jsonText});
+    if (!ok) await page.keyboard.insertText(${jsonText});
+    await page.evaluate(() => {
+      const el = document.activeElement;
+      if (el) el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }`);
 }
 function press(key: string) { pw(`press ${key}`); }
 function evalJs(expr: string): string { return pw(`--raw eval "${expr.replace(/\\/g, "\\\\")}"`, 30_000); }
@@ -87,65 +114,98 @@ async function upload(filePath: string) {
   if (!fs.existsSync(abs)) throw new Error(`附件不存在: ${abs}`);
   log(`上传附件: ${abs}`);
   const b64 = fs.readFileSync(abs).toString("base64");
-  const name = path.basename(abs).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  const name = path.basename(abs);
   const ext = path.extname(abs).toLowerCase();
   const mime: Record<string, string> = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp", ".pdf": "application/pdf", ".txt": "text/plain" };
   const m = mime[ext] || "application/octet-stream";
+  
   const r = runCode(`async page => {
-    const pos = await page.evaluate(() => {
-      const vh = window.innerHeight;
-      const btns = document.querySelectorAll('button');
-      for (const b of btns) {
-        const r = b.getBoundingClientRect();
-        if (r.width > 0 && r.width < 42 && r.height < 42
-            && !(b.textContent || '').trim()
-            && b.querySelector('svg')
-            && r.y > vh * 0.5) {
-          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
-        }
-      }
-      return null;
-    });
-    if (!pos) return 'plus-button-not-found';
-    await page.mouse.click(pos.x, pos.y);
+    // 点击 Upload & tools 按钮
+    await page.getByRole('button', { name: 'Upload & tools' }).click();
     await page.waitForTimeout(1000);
-    try {
-      await page.locator('input[type="file"]').waitFor({ state: 'attached', timeout: 5000 });
-    } catch { return 'file-input-not-found'; }
-    return await page.evaluate(({b64:b,name:n,mime:m}) => {
+    
+    // 点击 Upload files 菜单项
+    await page.locator('[data-test-id="local-images-files-uploader-button"]').click();
+    await page.waitForTimeout(500);
+    
+    // 让隐藏的 input 可见
+    await page.evaluate(() => {
+      const inp = document.querySelector('input[type="file"]');
+      if (inp) {
+        inp.style.display = 'block';
+        inp.style.visibility = 'visible';
+        inp.style.opacity = '1';
+        inp.style.position = 'fixed';
+        inp.style.top = '0';
+        inp.style.left = '0';
+        inp.style.width = '100px';
+        inp.style.height = '100px';
+        inp.style.zIndex = '99999';
+      }
+    });
+    await page.waitForTimeout(500);
+    
+    // 使用 page.$eval 来设置文件
+    await page.$eval('input[type="file"]', (inp, {b64:b,n,m}) => {
       const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
       const file = new File([bytes], n, {type:m});
-      const dt = new DataTransfer(); dt.items.add(file);
-      const inp = document.querySelector('input[type=file]');
-      if (!inp) return 'no-input';
+      const dt = new DataTransfer();
+      dt.items.add(file);
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set;
       setter.call(inp, dt.files);
-      inp.dispatchEvent(new Event('change', {bubbles:true}));
-      return 'uploaded:' + file.name;
-    },{b64:'${b64}',name:'${name}',mime:'${m}'});
+      inp.dispatchEvent(new Event('change', {bubbles: true}));
+    }, {b64:${JSON.stringify(b64)},n:${JSON.stringify(name)},m:${JSON.stringify(m)}});
+    
+    // 等待文件处理
+    await page.waitForTimeout(2000);
+    
+    // 隐藏 input
+    await page.evaluate(() => {
+      const inp = document.querySelector('input[type="file"]');
+      if (inp) inp.style.display = 'none';
+    });
+    
+    // 点击页面空白处关闭可能的弹窗
+    await page.evaluate(() => {
+      document.body.click();
+    });
+    await page.waitForTimeout(1000);
+    
+    return 'uploaded';
   }`);
   log(`上传结果: ${r}`);
-  if (!r.includes('uploaded:')) throw new Error(`上传失败: ${r}`);
-  await sleep(2000);
+  await sleep(1000);
 }
 
 // ─── 填写文本 ─────────────────────────────────────────
 async function fillPrompt(text: string) {
-  const snap = snapshot();
-  const ref = find(snap, KW.input);
-  if (ref) { log(`找到输入框: ${ref}`); click(ref); await sleep(500); }
-  typeText(text);
-  log(`已输入 (${text.length} 字)`);
+  const r = runCode(`async page => {
+    await page.locator('rich-textarea .ql-editor').click();
+    await page.waitForTimeout(500);
+    await page.keyboard.insertText(${JSON.stringify(text)});
+    return 'typed';
+  }`);
+  log(`输入结果: ${r}`);
   await sleep(800);
 }
 
 // ─── 点击发送 ─────────────────────────────────────────
 async function clickSend() {
   await sleep(500);
-  const snap = snapshot();
-  const ref = find(snap, KW.send);
-  if (ref) { click(ref); log(`点击发送: ${ref}`); }
-  else { press("Enter"); log("按 Enter 发送"); }
+  const r = runCode(`async page => {
+    // 1. 按 Escape 关闭任何可能残留的模态框或菜单
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+
+    // 2. 点击输入框重新获取焦点
+    await page.locator('rich-textarea .ql-editor').click();
+    await page.waitForTimeout(300);
+
+    // 3. 按 Enter 发送消息
+    await page.keyboard.press('Enter');
+    return 'sent';
+  }`);
+  log(`发送结果: ${r}`);
   await sleep(800);
 }
 
