@@ -250,138 +250,57 @@ export function press(key: string) {
  */
 export function upload(filePath: string) {
   const absPath = path.resolve(filePath);
-
-  // 检查 file input 是否已存在
-  let hasInput = false;
-  try {
-    const r = cli(`eval "document.querySelectorAll('input[type=file]').length" --raw`);
-    hasInput = parseInt(r, 10) > 0;
-  } catch { /* */ }
-
-  // 不存在则尝试点击上传按钮创建
-  if (!hasInput) {
-    const clickCode = `async page => {
-      const debug = [];
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(300);
-
-      // 1. getByRole（Gemini "Upload & tools"）
-      const roleBtn = page.getByRole('button', { name: /Upload|\\u4e0a\\u4f20|\\u6dfb\\u52a0\\u9644\\u4ef6/i }).first();
-      if (await roleBtn.isVisible().catch(() => false)) {
-        await roleBtn.click();
-        await page.waitForTimeout(1000);
-        debug.push('role');
-      } else {
-        // 2. 找输入框附近的可点击小图标
-        const inputArea = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
-        if (await inputArea.isVisible().catch(() => false)) {
-          const inputBox = await inputArea.boundingBox();
-          if (inputBox) {
-            const els = page.locator('button, [role="button"], svg, img:visible');
-            const count = await els.count();
-            for (let i = 0; i < Math.min(count, 100); i++) {
-              const el = els.nth(i);
-              const box = await el.boundingBox().catch(() => null);
-              if (!box) continue;
-              if (Math.abs(box.y - inputBox.y) > 100) continue;
-              if (box.width > 50 || box.width < 5) continue;
-              const text = await el.innerText().catch(() => '');
-              if (text.trim().length > 0) continue;
-              await page.evaluate(({x, y}) => {
-                const el = document.elementFromPoint(x, y);
-                if (el) el.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, clientX: x, clientY: y}));
-              }, {x: box.x + box.width / 2, y: box.y + box.height / 2});
-              await page.waitForTimeout(500);
-              const fc = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-              if (fc > 0) { debug.push('icon#' + i); break; }
-            }
-          }
-        }
-      }
-
-      // 3. 点击菜单项（本地文件/上传文档/上传文件/Upload files）
-      const menu = page.getByRole('menuitem').filter({ hasText: /\\u672c\\u5730\\u6587\\u4ef6|\\u4e0a\\u4f20\\u6587\\u6863|\\u4e0a\\u4f20\\u6587\\u4ef6|Upload files/i }).first();
-      if (await menu.isVisible().catch(() => false)) {
-        await menu.click();
-        await page.waitForTimeout(1000);
-        debug.push('menu');
-      }
-
-      // 4. 关闭文件选择框
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
-
-      const fc = await page.evaluate(() => document.querySelectorAll('input[type=file]').length);
-      if (fc === 0) throw new Error('No file input. ' + debug.join(','));
-      return debug.join(',');
-    }`;
-
-    const codeFile = path.join(process.cwd(), '.playwright-cli', '.click-upload.js');
-    fs.mkdirSync(path.dirname(codeFile), { recursive: true });
-    fs.writeFileSync(codeFile, clickCode, 'utf-8');
-    try {
-      cli(`run-code --filename="${codeFile}"`);
-    } finally {
-      try { fs.unlinkSync(codeFile); } catch { /* */ }
-    }
-  }
-
-  // 设置文件
-  const content = fs.readFileSync(absPath);
-  const base64 = content.toString('base64');
-  const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  const b64 = fs.readFileSync(absPath).toString('base64');
+  const name = path.basename(absPath).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   const ext = path.extname(absPath).toLowerCase();
   const mimeMap: Record<string, string> = {
     '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
-    '.gif': 'image/gif', '.webp': 'image/webp', '.bmp': 'image/bmp',
-    '.svg': 'image/svg+xml', '.pdf': 'application/pdf',
+    '.gif': 'image/gif', '.webp': 'image/webp', '.pdf': 'application/pdf',
     '.txt': 'text/plain', '.csv': 'text/csv', '.json': 'application/json',
   };
-  const mime = mimeMap[ext] || 'application/octet-stream';
-
-  const setCode = `async page => {
-    const result = await page.evaluate(() => {
-      const inputs = document.querySelectorAll('input[type=file]');
-      if (inputs.length === 0) return 'no input';
-      const b64 = '${base64}';
-      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-      const file = new File([bytes], '${name}', { type: '${mime}' });
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      let input = null;
-      for (const inp of inputs) {
-        if (!inp.accept || inp.accept === '') { input = inp; break; }
-      }
-      if (!input) {
-        for (const inp of inputs) {
-          const accept = inp.accept || '';
-          if (accept.includes('${ext.replace('.', '')}') || accept.includes('${mime}')) { input = inp; break; }
+  const m = mimeMap[ext] || 'application/octet-stream';
+  const code = `async page => {
+    const pos = await page.evaluate(() => {
+      const vh = window.innerHeight;
+      const btns = document.querySelectorAll('button');
+      for (const b of btns) {
+        const r = b.getBoundingClientRect();
+        if (r.width > 0 && r.width < 42 && r.height < 42
+            && !(b.textContent || '').trim()
+            && b.querySelector('svg')
+            && r.y > vh * 0.5) {
+          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
         }
       }
-      if (!input) input = inputs[inputs.length - 1];
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
-      if (setter && setter.set) setter.set.call(input, dt.files);
-      else input.files = dt.files;
-      const propsKey = Object.keys(input).find(k => k.startsWith('__reactProps$'));
-      if (propsKey) {
-        const props = input[propsKey];
-        if (props && props.onChange) {
-          props.onChange({ target: input, currentTarget: input });
-          return 'uploaded ' + file.name + ' via React';
-        }
-      }
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-      return 'uploaded ' + file.name + ' via native';
+      return null;
     });
-    return result;
+    if (!pos) return 'plus-button-not-found';
+    await page.mouse.click(pos.x, pos.y);
+    await page.waitForTimeout(1000);
+    try {
+      await page.locator('input[type="file"]').waitFor({ state: 'attached', timeout: 5000 });
+    } catch { return 'file-input-not-found'; }
+    return await page.evaluate(({b64:b,name:n,mime:m}) => {
+      const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+      const file = new File([bytes], n, {type:m});
+      const dt = new DataTransfer(); dt.items.add(file);
+      const inp = document.querySelector('input[type=file]');
+      if (!inp) return 'no-input';
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set;
+      setter.call(inp, dt.files);
+      inp.dispatchEvent(new Event('change', {bubbles:true}));
+      return 'uploaded:' + file.name;
+    },{b64:'${b64}',name:'${name}',mime:'${m}'});
   }`;
-
-  const setFile = path.join(process.cwd(), '.playwright-cli', '.upload-set.js');
-  fs.writeFileSync(setFile, setCode, 'utf-8');
+  const codeFile = path.join(process.cwd(), '.playwright-cli', '.upload-code.js');
+  fs.mkdirSync(path.dirname(codeFile), { recursive: true });
+  fs.writeFileSync(codeFile, code, 'utf-8');
   try {
-    return cli(`run-code --filename="${setFile}"`);
+    const result = cli(`run-code --filename="${codeFile}"`);
+    if (!result.includes('uploaded:')) throw new Error(result);
+    return result;
   } finally {
-    try { fs.unlinkSync(setFile); } catch { /* */ }
+    try { fs.unlinkSync(codeFile); } catch { /* */ }
   }
 }
 
