@@ -144,13 +144,11 @@ async function upload(filePath: string) {
       const dt = new DataTransfer(); dt.items.add(file);
       const inputs = document.querySelectorAll('input[type=file]');
       if (!inputs.length) return 'no-file-input';
-      let count = 0;
-      for (const inp of inputs) {
-        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set.call(inp, dt.files);
-        inp.dispatchEvent(new Event('change', {bubbles:true}));
-        count++;
-      }
-      return 'set:'+count+':'+file.name;
+      // 只对最后一个 file input 设置文件（最近打开的即聊天上传的，避免触发头像更换等其他弹窗）
+      const inp = inputs[inputs.length - 1];
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set.call(inp, dt.files);
+      inp.dispatchEvent(new Event('change', {bubbles:true}));
+      return 'set:'+file.name;
     },{b64:'${b64}',name:'${name}',mime:'${m}'});
   }`);
   log(`上传结果: ${r}`);
