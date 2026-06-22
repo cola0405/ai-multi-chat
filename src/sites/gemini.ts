@@ -3,7 +3,7 @@
  *
  * 运行:
  *   npx tsx src/sites/gemini.ts "Hello"
- *   npx tsx src/sites/gemini.ts "分析图片" --file ./test.png
+ *   npx tsx src/sites/gemini.ts "see this" --file ./test.png
  */
 
 import { execSync } from "node:child_process";
@@ -165,24 +165,28 @@ async function upload(filePath: string) {
       if (inp) inp.style.display = 'none';
     });
     
-    // 点击页面空白处关闭可能的弹窗
-    await page.evaluate(() => {
-      document.body.click();
-    });
-    await page.waitForTimeout(1000);
-    
     return 'uploaded';
   }`);
   log(`上传结果: ${r}`);
+  
+  // 关键修复：使用 upload 命令关闭残留的文件选择器模态框
+  // 点击 Upload files 会打开原生文件选择器对话框，JS 设置文件后对话框仍然处于打开状态
+  // upload 命令可以处理文件选择器模态框（即使报错也会关闭模态框）
+  const dummyFile = path.join(process.cwd(), ".playwright-cli", "_dummy.txt");
+  try { if (!fs.existsSync(dummyFile)) fs.writeFileSync(dummyFile, ""); } catch { /* */ }
+  try { pw(`upload "${dummyFile}"`); } catch { /* 模态框已关闭，忽略错误 */ }
+  
   await sleep(1000);
 }
 
 // ─── 填写文本 ─────────────────────────────────────────
 async function fillPrompt(text: string) {
   const r = runCode(`async page => {
-    await page.locator('rich-textarea .ql-editor').click();
+    const el = page.locator('rich-textarea .ql-editor');
+    await el.click();
     await page.waitForTimeout(500);
-    await page.keyboard.insertText(${JSON.stringify(text)});
+    // 使用 execCommand 触发完整的编辑事件链（比 insertText 更接近真实键盘输入）
+    await page.evaluate((t) => document.execCommand('insertText', false, t), ${JSON.stringify(text)});
     return 'typed';
   }`);
   log(`输入结果: ${r}`);
@@ -193,15 +197,6 @@ async function fillPrompt(text: string) {
 async function clickSend() {
   await sleep(500);
   const r = runCode(`async page => {
-    // 1. 按 Escape 关闭任何可能残留的模态框或菜单
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
-
-    // 2. 点击输入框重新获取焦点
-    await page.locator('rich-textarea .ql-editor').click();
-    await page.waitForTimeout(300);
-
-    // 3. 按 Enter 发送消息
     await page.keyboard.press('Enter');
     return 'sent';
   }`);
