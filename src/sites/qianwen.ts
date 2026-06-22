@@ -139,13 +139,13 @@ async function fillPrompt(text: string) {
   const snap = snapshot();
   const ref = find(snap, KW.input);
   if (ref) { log(`找到输入框: ${ref}`); click(ref); await sleep(500); }
-  typeText(text);
-  log(`已输入 (${text.length} 字)`);
+  // 用 keyboard.type 模拟真实键盘事件，Slate 编辑器需要 keydown/keyup 才能更新内部状态
+  const r = runCode(`async page => {
+    await page.keyboard.type(${JSON.stringify(text)}, { delay: 10 });
+    return 'typed';
+  }`);
+  log(`输入结果: ${r}`);
   await sleep(800);
-  // 再次点击输入框确保焦点
-  const snap2 = snapshot();
-  const ref2 = find(snap2, KW.input);
-  if (ref2) { click(ref2); await sleep(300); }
 }
 
 // ─── 点击发送 ─────────────────────────────────────────
@@ -175,7 +175,7 @@ export const plugin = {
     try {
       if (attachment) await upload(attachment);
       await fillPrompt(prompt);
-      press("Enter");
+      await clickSend();
       log("已发送");
       result.success = true;
     } catch (err) {
@@ -221,7 +221,7 @@ async function main() {
     goto(URL); await sleep(3000); log("就绪");
     if (filePath) await upload(filePath);
     await fillPrompt(prompt);
-    press("Enter");
+    await clickSend();
     log("已发送");
   } finally {
     if (!process.env.SKIP_ATTACH) detach();
